@@ -6075,7 +6075,64 @@
             text-wrap: pretty;
         }
 
+        /* Header search: keep inline with logo, reserve panel search for mobile only */
+        .site-header {
+            width: auto;
+            margin-inline: var(--ui-gutter);
+        }
+
+        .header-shell {
+            padding-inline: 0;
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-inline: 0;
+        }
+
+        .header-panel {
+            padding-inline: 0;
+        }
+
+        .header-search-inline {
+            flex: 1 1 460px;
+            min-width: 220px;
+            margin-left: 4px;
+        }
+
+        .header-search-panel {
+            display: none;
+        }
+
+        @media (max-width: 980px) and (min-width: 681px) {
+            .header-inner {
+                justify-content: flex-start;
+            }
+
+            .header-search-inline {
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+        }
+
+        @media (max-width: 680px) {
+            .header-search-inline {
+                display: none;
+            }
+
+            .header-search-panel {
+                display: flex;
+                width: 100%;
+            }
+        }
+
         @media (max-width: 980px) {
+            .site-header {
+                margin-inline: clamp(10px, 3vw, 16px);
+            }
+
             .nav-main,
             .nav-actions {
                 gap: 6px;
@@ -6102,17 +6159,32 @@
     @php($cartSummary = app(\App\Services\CartService::class)->summary())
     @php($currentUser = auth()->user())
     <a href="#conteudo" class="skip-link">Pular para o conteúdo</a>
-    <header class="site-header" data-site-header data-nav-open="false">
-        <div class="container header-shell">
-            <div class="header-inner">
-                <a href="{{ route('home') }}" class="brand brand-vertice" aria-label="Ir para a home">
-                    @include('partials.vertice-logo', ['variant' => 'header'])
-                </a>
+	    <header class="site-header" data-site-header data-nav-open="false">
+	        <div class="container header-shell">
+	            <div class="header-inner">
+	                <a href="{{ route('home') }}" class="brand brand-vertice" aria-label="Ir para a home">
+	                    @include('partials.vertice-logo', ['variant' => 'header'])
+	                </a>
 
-                <span class="header-meta-chip" aria-hidden="true">
-                    @include('partials.nav-icon', ['name' => 'status-production', 'class' => 'header-meta-icon'])
-                    <span class="dot"></span>
-                    Pedido online, produção e retirada
+	                <form class="header-search header-search-inline" method="GET" action="{{ route('catalog.index') }}" role="search" aria-label="Buscar no catálogo">
+	                    <span class="header-search-kicker">Produtos</span>
+	                    <input
+	                        type="search"
+	                        name="q"
+	                        value="{{ (string) request('q', '') }}"
+	                        placeholder="Buscar: cartão, flyer, banner, etiqueta..."
+	                        aria-label="Buscar produtos"
+	                    >
+	                    @if(request()->filled('categoria'))
+	                        <input type="hidden" name="categoria" value="{{ request('categoria') }}">
+	                    @endif
+	                    <button class="btn btn-secondary btn-sm" type="submit">Ir</button>
+	                </form>
+
+	                <span class="header-meta-chip" aria-hidden="true">
+	                    @include('partials.nav-icon', ['name' => 'status-production', 'class' => 'header-meta-icon'])
+	                    <span class="dot"></span>
+	                    Pedido online, produção e retirada
                 </span>
 
                 <button
@@ -6126,14 +6198,14 @@
                     <span class="bars" aria-hidden="true"><span></span></span>
                     Menu
                 </button>
-            </div>
+	            </div>
 
-            <div class="header-panel" id="site-header-panel">
-                <form class="header-search" method="GET" action="{{ route('catalog.index') }}" role="search" aria-label="Buscar no catálogo">
-                    <span class="header-search-kicker">Produtos</span>
-                    <input
-                        type="search"
-                        name="q"
+	            <div class="header-panel" id="site-header-panel">
+	                <form class="header-search header-search-panel" method="GET" action="{{ route('catalog.index') }}" role="search" aria-label="Buscar no catálogo">
+	                    <span class="header-search-kicker">Produtos</span>
+	                    <input
+	                        type="search"
+	                        name="q"
                         value="{{ (string) request('q', '') }}"
                         placeholder="Buscar: cartão, flyer, banner, etiqueta..."
                         aria-label="Buscar produtos"
