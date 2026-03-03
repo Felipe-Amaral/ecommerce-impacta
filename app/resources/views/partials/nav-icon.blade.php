@@ -15,6 +15,44 @@
             <path d="M13.5 13.5H19.5V18.5H13.5V13.5Z" stroke="currentColor" stroke-width="1.8" rx="1"/>
         </svg>
         @break
+    @case('about')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="8.3" r="3.1" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M5.4 18.3C6.6 15.9 9 14.6 12 14.6C15 14.6 17.4 15.9 18.6 18.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        @break
+    @case('services')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M10 5.5L8.9 7.8L6.5 8.9L8.9 10L10 12.3L11.1 10L13.5 8.9L11.1 7.8L10 5.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M16 11L14.7 13.8L12 15.1L14.7 16.4L16 19.2L17.3 16.4L20 15.1L17.3 13.8L16 11Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+        @break
+    @case('portfolio')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="4.5" y="5.5" width="15" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M8 10.2C8.7 10.2 9.2 9.7 9.2 9C9.2 8.3 8.7 7.8 8 7.8C7.3 7.8 6.8 8.3 6.8 9C6.8 9.7 7.3 10.2 8 10.2Z" fill="currentColor"/>
+            <path d="M6.5 16.5L10.2 12.8L12.8 15.4L14.8 13.4L17.5 16.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        @break
+    @case('blog')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6.5 5.5H17.5C18.1 5.5 18.5 5.9 18.5 6.5V17.5C18.5 18.1 18.1 18.5 17.5 18.5H6.5C5.9 18.5 5.5 18.1 5.5 17.5V6.5C5.5 5.9 5.9 5.5 6.5 5.5Z" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M8.8 9.2H15.2M8.8 12H15.2M8.8 14.8H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        @break
+    @case('quote')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="5" y="4.8" width="14" height="14.4" rx="2" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M8.3 8.7H15.7M8.3 11.7H15.7M8.3 14.7H12.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M12.2 4.8V19.2" stroke="currentColor" stroke-width="1.2" opacity=".18"/>
+        </svg>
+        @break
+    @case('contact')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6.5 6.5H17.5C18.6 6.5 19.5 7.4 19.5 8.5V15.5C19.5 16.6 18.6 17.5 17.5 17.5H10L6.5 20V17.5C5.4 17.5 4.5 16.6 4.5 15.5V8.5C4.5 7.4 5.4 6.5 6.5 6.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M8.5 10.3H15.5M8.5 13.2H13.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        @break
     @case('cart')
         <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M3.5 5.5H6L7.8 15.2H18.2L20.2 8.2H7.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>

@@ -6143,9 +6143,9 @@
         }
 
         .header-quick-link .nav-icon-svg {
-            width: 20px;
-            height: 20px;
-            border-radius: 10px;
+            width: 22px;
+            height: 22px;
+            border-radius: 11px;
             background: rgba(198,161,74,.14);
             padding: 3px;
             color: #7c5f1f;
@@ -6208,11 +6208,16 @@
                 linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,251,245,.86));
         }
 
+        .header-panel .nav-main .nav-group-pill .nav-icon-svg {
+            width: 18px;
+            height: 18px;
+        }
+
         .header-panel .nav-link .nav-icon-svg,
         .header-panel .nav-action-btn .nav-icon-svg {
-            width: 20px;
-            height: 20px;
-            border-radius: 10px;
+            width: 22px;
+            height: 22px;
+            border-radius: 11px;
             padding: 3px;
         }
 
@@ -6275,8 +6280,8 @@
 
             .nav-link .nav-icon-svg,
             .nav-action-btn .nav-icon-svg {
-                width: 18px;
-                height: 18px;
+                width: 20px;
+                height: 20px;
                 padding: 2px;
             }
 
@@ -6406,6 +6411,30 @@
                                     @include('partials.nav-icon', ['name' => 'catalog', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Catálogo</span>
                                 </a>
+                                <a class="nav-link {{ request()->routeIs('pages.about') ? 'active' : '' }}" href="{{ route('pages.about') }}">
+                                    @include('partials.nav-icon', ['name' => 'about', 'class' => 'nav-icon'])
+                                    <span class="nav-link-label">Quem somos</span>
+                                </a>
+                                <a class="nav-link {{ request()->routeIs('pages.services') ? 'active' : '' }}" href="{{ route('pages.services') }}">
+                                    @include('partials.nav-icon', ['name' => 'services', 'class' => 'nav-icon'])
+                                    <span class="nav-link-label">Serviços</span>
+                                </a>
+                                <a class="nav-link {{ request()->routeIs('pages.portfolio') ? 'active' : '' }}" href="{{ route('pages.portfolio') }}">
+                                    @include('partials.nav-icon', ['name' => 'portfolio', 'class' => 'nav-icon'])
+                                    <span class="nav-link-label">Portfólio</span>
+                                </a>
+                                <a class="nav-link {{ request()->routeIs('pages.blog') ? 'active' : '' }}" href="{{ route('pages.blog') }}">
+                                    @include('partials.nav-icon', ['name' => 'blog', 'class' => 'nav-icon'])
+                                    <span class="nav-link-label">Blog</span>
+                                </a>
+                                <a class="nav-link {{ request()->routeIs('pages.quote') ? 'active' : '' }}" href="{{ route('pages.quote') }}">
+                                    @include('partials.nav-icon', ['name' => 'quote', 'class' => 'nav-icon'])
+                                    <span class="nav-link-label">Orçamento</span>
+                                </a>
+                                <a class="nav-link {{ request()->routeIs('pages.contact') ? 'active' : '' }}" href="{{ route('pages.contact') }}">
+                                    @include('partials.nav-icon', ['name' => 'contact', 'class' => 'nav-icon'])
+                                    <span class="nav-link-label">Contato</span>
+                                </a>
                                 <a class="nav-link nav-link-cart {{ request()->routeIs('cart.*') ? 'active' : '' }}" href="{{ route('cart.index') }}">
                                     @include('partials.nav-icon', ['name' => 'cart', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Carrinho</span>
@@ -6422,6 +6451,30 @@
                             <a class="nav-link {{ request()->routeIs('catalog.*') ? 'active' : '' }}" href="{{ route('catalog.index') }}">
                                 @include('partials.nav-icon', ['name' => 'catalog', 'class' => 'nav-icon'])
                                 <span class="nav-link-label">Catálogo</span>
+                            </a>
+                            <a class="nav-link {{ request()->routeIs('pages.about') ? 'active' : '' }}" href="{{ route('pages.about') }}">
+                                @include('partials.nav-icon', ['name' => 'about', 'class' => 'nav-icon'])
+                                <span class="nav-link-label">Quem somos</span>
+                            </a>
+                            <a class="nav-link {{ request()->routeIs('pages.services') ? 'active' : '' }}" href="{{ route('pages.services') }}">
+                                @include('partials.nav-icon', ['name' => 'services', 'class' => 'nav-icon'])
+                                <span class="nav-link-label">Serviços</span>
+                            </a>
+                            <a class="nav-link {{ request()->routeIs('pages.portfolio') ? 'active' : '' }}" href="{{ route('pages.portfolio') }}">
+                                @include('partials.nav-icon', ['name' => 'portfolio', 'class' => 'nav-icon'])
+                                <span class="nav-link-label">Portfólio</span>
+                            </a>
+                            <a class="nav-link {{ request()->routeIs('pages.blog') ? 'active' : '' }}" href="{{ route('pages.blog') }}">
+                                @include('partials.nav-icon', ['name' => 'blog', 'class' => 'nav-icon'])
+                                <span class="nav-link-label">Blog</span>
+                            </a>
+                            <a class="nav-link {{ request()->routeIs('pages.quote') ? 'active' : '' }}" href="{{ route('pages.quote') }}">
+                                @include('partials.nav-icon', ['name' => 'quote', 'class' => 'nav-icon'])
+                                <span class="nav-link-label">Orçamento</span>
+                            </a>
+                            <a class="nav-link {{ request()->routeIs('pages.contact') ? 'active' : '' }}" href="{{ route('pages.contact') }}">
+                                @include('partials.nav-icon', ['name' => 'contact', 'class' => 'nav-icon'])
+                                <span class="nav-link-label">Contato</span>
                             </a>
                             <a class="nav-link nav-link-cart {{ request()->routeIs('cart.*') ? 'active' : '' }}" href="{{ route('cart.index') }}">
                                 @include('partials.nav-icon', ['name' => 'cart', 'class' => 'nav-icon'])

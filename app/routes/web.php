@@ -76,6 +76,12 @@ Route::middleware('auth')->group(function (): void {
 });
 
 Route::get('/', HomeController::class)->name('home');
+Route::view('/quem-somos', 'store.pages.blank', ['pageTitle' => 'Quem Somos'])->name('pages.about');
+Route::view('/servicos', 'store.pages.blank', ['pageTitle' => 'Serviços'])->name('pages.services');
+Route::view('/portfolio', 'store.pages.blank', ['pageTitle' => 'Portfólio'])->name('pages.portfolio');
+Route::view('/blog', 'store.pages.blank', ['pageTitle' => 'Blog'])->name('pages.blog');
+Route::view('/orcamento', 'store.pages.blank', ['pageTitle' => 'Orçamento'])->name('pages.quote');
+Route::view('/contato', 'store.pages.blank', ['pageTitle' => 'Contato'])->name('pages.contact');
 
 Route::get('/catalogo', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/catalogo/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
