@@ -6208,6 +6208,20 @@
                 linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,251,245,.86));
         }
 
+        .header-panel .nav-main,
+        .header-panel .nav-actions {
+            justify-content: center;
+        }
+
+        .header-panel .nav .nav-link {
+            justify-content: center;
+            text-align: center;
+        }
+
+        .header-panel .nav .nav-link-label {
+            text-align: center;
+        }
+
         .header-panel .nav-main .nav-group-pill .nav-icon-svg {
             width: 18px;
             height: 18px;
@@ -6380,10 +6394,6 @@
 
                 <nav class="nav" aria-label="Navegação principal">
                     <div class="nav-main">
-                        <span class="nav-group-pill" aria-hidden="true">
-                            @include('partials.nav-icon', ['name' => ($currentUser?->is_admin ? 'panel' : 'catalog'), 'class' => 'nav-icon'])
-                            <span>{{ $currentUser?->is_admin ? 'Operação' : 'Explorar' }}</span>
-                        </span>
                         @auth
                             @if($currentUser?->is_admin)
                                 <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
