@@ -5742,12 +5742,177 @@
                 inset 0 1px 0 rgba(255,255,255,.8);
         }
 
-        .alert {
+        .flash-stack {
+            position: fixed;
+            bottom: clamp(14px, 2.2vw, 30px);
+            right: clamp(14px, 2.2vw, 30px);
+            display: grid;
+            gap: 12px;
+            width: min(420px, calc(100vw - 24px));
+            z-index: 60;
+            pointer-events: none;
+        }
+
+        .flash-toast {
+            --flash-accent: #0f8a5f;
+            position: relative;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: start;
+            gap: 12px;
+            padding: 13px 14px;
             border-radius: 16px;
-            border: 1px solid rgba(22,20,19,.06);
+            border: 1px solid color-mix(in srgb, var(--flash-accent) 24%, rgba(22,20,19,.08));
+            background:
+                linear-gradient(170deg, rgba(255,255,255,.98), rgba(255,255,255,.92)),
+                radial-gradient(circle at 4% 8%, color-mix(in srgb, var(--flash-accent) 10%, transparent), transparent 46%);
             box-shadow:
-                0 10px 20px rgba(12,10,8,.04),
-                inset 0 1px 0 rgba(255,255,255,.55);
+                0 18px 38px rgba(12,10,8,.14),
+                inset 0 1px 0 rgba(255,255,255,.72);
+            color: color-mix(in srgb, var(--ink) 87%, black 13%);
+            opacity: 0;
+            transform: translateY(14px) scale(.97);
+            filter: saturate(.92);
+            transition:
+                transform .45s cubic-bezier(.22, .61, .36, 1),
+                opacity .35s ease,
+                filter .35s ease;
+            pointer-events: auto;
+            overflow: hidden;
+        }
+
+        .flash-toast::after {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 3px;
+            background: linear-gradient(180deg, color-mix(in srgb, var(--flash-accent) 88%, white 12%), color-mix(in srgb, var(--flash-accent) 58%, black 42%));
+        }
+
+        .flash-toast[data-flash-state="open"] {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: saturate(1);
+        }
+
+        .flash-toast[data-flash-state="closing"] {
+            opacity: 0;
+            transform: translateY(16px) scale(.96);
+            filter: saturate(.88);
+        }
+
+        .flash-toast.tone-success { --flash-accent: #0f8a5f; }
+        .flash-toast.tone-error { --flash-accent: #b3261e; }
+
+        .flash-icon-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: color-mix(in srgb, var(--flash-accent) 12%, white 88%);
+            color: color-mix(in srgb, var(--flash-accent) 84%, black 16%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
+            margin-top: 1px;
+        }
+
+        .flash-icon-wrap .nav-icon {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+            color: currentColor;
+            flex-shrink: 0;
+        }
+
+        .flash-content {
+            display: grid;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .flash-title {
+            font-size: .83rem;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            font-weight: 900;
+            color: color-mix(in srgb, var(--flash-accent) 76%, black 24%);
+        }
+
+        .flash-message {
+            font-size: .93rem;
+            line-height: 1.42;
+            color: color-mix(in srgb, var(--ink) 84%, black 16%);
+        }
+
+        .flash-list {
+            list-style: none;
+            margin: 6px 0 0;
+            padding: 0;
+            display: grid;
+            gap: 2px;
+        }
+
+        .flash-list li {
+            font-size: .89rem;
+            line-height: 1.35;
+        }
+
+        .flash-close {
+            appearance: none;
+            border: 0;
+            width: 28px;
+            height: 28px;
+            margin: -2px -2px 0 0;
+            border-radius: 999px;
+            background: transparent;
+            color: color-mix(in srgb, var(--flash-accent) 70%, black 30%);
+            font-size: 1.26rem;
+            line-height: 1;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color .2s ease, color .2s ease;
+        }
+
+        .flash-close:hover {
+            background: color-mix(in srgb, var(--flash-accent) 11%, white 89%);
+            color: color-mix(in srgb, var(--flash-accent) 85%, black 15%);
+        }
+
+        .flash-close:focus-visible {
+            outline: 2px solid color-mix(in srgb, var(--flash-accent) 34%, white 66%);
+            outline-offset: 2px;
+        }
+
+        .flash-progress {
+            position: absolute;
+            inset: auto 0 0;
+            height: 2px;
+            background: color-mix(in srgb, var(--flash-accent) 62%, white 38%);
+            transform-origin: left center;
+            transform: scaleX(1);
+            opacity: .7;
+        }
+
+        .flash-toast[data-flash-state="open"] .flash-progress {
+            animation: flash-progress linear forwards;
+            animation-duration: var(--flash-duration, 5200ms);
+        }
+
+        @keyframes flash-progress {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
+
+        @media (max-width: 680px) {
+            .flash-stack {
+                bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+                right: 10px;
+                left: auto;
+                width: min(360px, calc(100vw - 20px));
+            }
         }
 
         .table-wrap {
@@ -6531,25 +6696,57 @@
         </div>
     </header>
 
+    @if (session('success') || session('error') || $errors->any())
+        <div class="flash-stack" aria-live="polite" aria-atomic="true" data-flash-stack>
+            @if (session('success'))
+                <article class="flash-toast tone-success" role="status" data-flash-item data-flash-duration="4600">
+                    <span class="flash-icon-wrap" aria-hidden="true">
+                        @include('partials.nav-icon', ['name' => 'status-approved', 'class' => 'nav-icon'])
+                    </span>
+                    <div class="flash-content">
+                        <span class="flash-title">Sucesso</span>
+                        <p class="flash-message">{{ session('success') }}</p>
+                    </div>
+                    <button type="button" class="flash-close" data-flash-close aria-label="Fechar notificação">&times;</button>
+                    <span class="flash-progress" aria-hidden="true"></span>
+                </article>
+            @endif
+
+            @if (session('error'))
+                <article class="flash-toast tone-error" role="alert" data-flash-item data-flash-duration="6400">
+                    <span class="flash-icon-wrap" aria-hidden="true">
+                        @include('partials.nav-icon', ['name' => 'status-failed', 'class' => 'nav-icon'])
+                    </span>
+                    <div class="flash-content">
+                        <span class="flash-title">Atenção</span>
+                        <p class="flash-message">{{ session('error') }}</p>
+                    </div>
+                    <button type="button" class="flash-close" data-flash-close aria-label="Fechar notificação">&times;</button>
+                    <span class="flash-progress" aria-hidden="true"></span>
+                </article>
+            @endif
+
+            @if ($errors->any())
+                <article class="flash-toast tone-error" role="alert" data-flash-item data-flash-duration="7600">
+                    <span class="flash-icon-wrap" aria-hidden="true">
+                        @include('partials.nav-icon', ['name' => 'status-failed', 'class' => 'nav-icon'])
+                    </span>
+                    <div class="flash-content">
+                        <span class="flash-title">Revise os campos</span>
+                        <ul class="flash-list">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <button type="button" class="flash-close" data-flash-close aria-label="Fechar notificação">&times;</button>
+                    <span class="flash-progress" aria-hidden="true"></span>
+                </article>
+            @endif
+        </div>
+    @endif
+
     <main id="conteudo" class="container">
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-
-        @if (session('error'))
-            <div class="alert alert-error">{{ session('error') }}</div>
-        @endif
-
-        @if ($errors->any())
-            <div class="alert alert-error">
-                <strong>Revise os campos informados.</strong>
-                <ul class="clean-list" style="margin-top:8px;">
-                    @foreach ($errors->all() as $error)
-                        <li>• {{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
 
         @yield('content')
     </main>
@@ -6699,6 +6896,46 @@
 
                 window.addEventListener('resize', () => {
                     if (!isMobile()) setOpen(false);
+                });
+            }
+
+            const flashStack = document.querySelector('[data-flash-stack]');
+            if (flashStack) {
+                const clearDismissTimer = (item) => {
+                    const timerId = Number(item.dataset.flashTimer || '0');
+                    if (timerId) window.clearTimeout(timerId);
+                    item.dataset.flashTimer = '';
+                };
+
+                const closeFlash = (item) => {
+                    if (!(item instanceof HTMLElement) || item.dataset.flashState === 'closing') return;
+                    clearDismissTimer(item);
+                    item.dataset.flashState = 'closing';
+                    window.setTimeout(() => {
+                        item.remove();
+                        if (!flashStack.querySelector('[data-flash-item]')) {
+                            flashStack.remove();
+                        }
+                    }, 420);
+                };
+
+                flashStack.querySelectorAll('[data-flash-item]').forEach((item, index) => {
+                    const duration = Number(item.dataset.flashDuration || '5200');
+                    item.style.setProperty('--flash-duration', `${duration}ms`);
+
+                    window.setTimeout(() => {
+                        window.requestAnimationFrame(() => {
+                            item.dataset.flashState = 'open';
+                        });
+                    }, Math.min(index * 90, 240));
+
+                    const closeButton = item.querySelector('[data-flash-close]');
+                    if (closeButton) {
+                        closeButton.addEventListener('click', () => closeFlash(item));
+                    }
+
+                    const timerId = window.setTimeout(() => closeFlash(item), duration);
+                    item.dataset.flashTimer = String(timerId);
                 });
             }
 
