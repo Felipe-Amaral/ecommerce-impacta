@@ -6573,6 +6573,10 @@
                                     @include('partials.nav-icon', ['name' => 'cadastros', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Cadastros</span>
                                 </a>
+                                <a class="nav-link {{ request()->routeIs('admin.blog.*') ? 'active' : '' }}" href="{{ route('admin.blog.index') }}">
+                                    @include('partials.nav-icon', ['name' => 'blog', 'class' => 'nav-icon'])
+                                    <span class="nav-link-label">Blog</span>
+                                </a>
                                 <a class="nav-link {{ request()->routeIs('catalog.*') ? 'active' : '' }}" href="{{ route('catalog.index') }}">
                                     @include('partials.nav-icon', ['name' => 'store', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Loja</span>
@@ -6598,7 +6602,7 @@
                                     @include('partials.nav-icon', ['name' => 'portfolio', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Portfólio</span>
                                 </a>
-                                <a class="nav-link {{ request()->routeIs('pages.blog') ? 'active' : '' }}" href="{{ route('pages.blog') }}">
+                                <a class="nav-link {{ request()->routeIs('blog.*') ? 'active' : '' }}" href="{{ route('blog.index') }}">
                                     @include('partials.nav-icon', ['name' => 'blog', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Blog</span>
                                 </a>
@@ -6639,7 +6643,7 @@
                                 @include('partials.nav-icon', ['name' => 'portfolio', 'class' => 'nav-icon'])
                                 <span class="nav-link-label">Portfólio</span>
                             </a>
-                            <a class="nav-link {{ request()->routeIs('pages.blog') ? 'active' : '' }}" href="{{ route('pages.blog') }}">
+                            <a class="nav-link {{ request()->routeIs('blog.*') ? 'active' : '' }}" href="{{ route('blog.index') }}">
                                 @include('partials.nav-icon', ['name' => 'blog', 'class' => 'nav-icon'])
                                 <span class="nav-link-label">Blog</span>
                             </a>
@@ -6815,6 +6819,10 @@
                 <a href="{{ route('admin.catalog.index') }}" class="{{ request()->routeIs('admin.catalog.*') ? 'active' : '' }}">
                     @include('partials.nav-icon', ['name' => 'cadastros', 'class' => 'nav-icon'])
                     <span class="nav-link-label">Cadastros</span>
+                </a>
+                <a href="{{ route('admin.blog.index') }}" class="{{ request()->routeIs('admin.blog.*') ? 'active' : '' }}">
+                    @include('partials.nav-icon', ['name' => 'blog', 'class' => 'nav-icon'])
+                    <span class="nav-link-label">Blog</span>
                 </a>
                 <a href="{{ route('catalog.index') }}" class="cta">
                     @include('partials.nav-icon', ['name' => 'store', 'class' => 'nav-icon'])

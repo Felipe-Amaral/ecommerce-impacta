@@ -88,6 +88,22 @@
             </ul>
             <div class="tiny muted">Total cadastrado: {{ $stats['banners'] }}</div>
         </article>
+
+        <article class="card card-pad stack">
+            <div class="link-row">
+                <h2 style="font-size:1.2rem;">Blog e SEO</h2>
+                <a href="{{ route('admin.blog.index') }}" class="btn btn-secondary btn-sm">Gerenciar</a>
+            </div>
+            <p class="small muted">Construa a vitrine editorial da marca com artigos, categorias, tags e campos avançados de SEO.</p>
+            <ul class="clean-list small muted">
+                <li>• Publicação imediata, rascunho e agendamento</li>
+                <li>• Meta title/description, canonical e Open Graph</li>
+                <li>• Organização por categorias e tags temáticas</li>
+            </ul>
+            <div class="tiny muted">
+                Artigos: {{ $stats['blog_posts'] }} • Categorias: {{ $stats['blog_categories'] }} • Tags: {{ $stats['blog_tags'] }}
+            </div>
+        </article>
     </section>
 
     <section class="card card-pad stack">

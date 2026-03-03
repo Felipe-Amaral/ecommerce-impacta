@@ -103,6 +103,7 @@
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                     <a href="{{ route('admin.orders.index') }}" class="btn btn-secondary btn-sm">Ver todos os pedidos</a>
                     <a href="{{ route('admin.catalog.index') }}" class="btn btn-secondary btn-sm">Cadastros</a>
+                    <a href="{{ route('admin.blog.index') }}" class="btn btn-secondary btn-sm">Blog</a>
                 </div>
             </div>
 

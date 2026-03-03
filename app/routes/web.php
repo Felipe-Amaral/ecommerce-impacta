@@ -6,8 +6,12 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CheckoutShippingQuoteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\Account\OrderController as AccountOrderController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\BlogCategoryController as AdminBlogCategoryController;
+use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
+use App\Http\Controllers\Admin\BlogTagController as AdminBlogTagController;
 use App\Http\Controllers\Admin\HomeBannerController as AdminHomeBannerController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ArtworkFileReviewController;
@@ -70,6 +74,25 @@ Route::middleware('auth')->group(function (): void {
     Route::patch('/painel/cadastros/banners/{banner}/status', [AdminHomeBannerController::class, 'toggleActive'])->name('admin.catalog.banners.status');
     Route::delete('/painel/cadastros/banners/{banner}', [AdminHomeBannerController::class, 'destroy'])->name('admin.catalog.banners.destroy');
 
+    Route::get('/painel/blog', [AdminBlogPostController::class, 'index'])->name('admin.blog.index');
+    Route::get('/painel/blog/novo', [AdminBlogPostController::class, 'create'])->name('admin.blog.create');
+    Route::post('/painel/blog', [AdminBlogPostController::class, 'store'])->name('admin.blog.store');
+    Route::get('/painel/blog/{blogPost}/editar', [AdminBlogPostController::class, 'edit'])->name('admin.blog.edit');
+    Route::put('/painel/blog/{blogPost}', [AdminBlogPostController::class, 'update'])->name('admin.blog.update');
+    Route::delete('/painel/blog/{blogPost}', [AdminBlogPostController::class, 'destroy'])->name('admin.blog.destroy');
+    Route::patch('/painel/blog/{blogPost}/publicar', [AdminBlogPostController::class, 'publish'])->name('admin.blog.publish');
+    Route::patch('/painel/blog/{blogPost}/rascunho', [AdminBlogPostController::class, 'draft'])->name('admin.blog.draft');
+
+    Route::get('/painel/blog/categorias', [AdminBlogCategoryController::class, 'index'])->name('admin.blog.categories.index');
+    Route::post('/painel/blog/categorias', [AdminBlogCategoryController::class, 'store'])->name('admin.blog.categories.store');
+    Route::put('/painel/blog/categorias/{blogCategory}', [AdminBlogCategoryController::class, 'update'])->name('admin.blog.categories.update');
+    Route::delete('/painel/blog/categorias/{blogCategory}', [AdminBlogCategoryController::class, 'destroy'])->name('admin.blog.categories.destroy');
+
+    Route::get('/painel/blog/tags', [AdminBlogTagController::class, 'index'])->name('admin.blog.tags.index');
+    Route::post('/painel/blog/tags', [AdminBlogTagController::class, 'store'])->name('admin.blog.tags.store');
+    Route::put('/painel/blog/tags/{blogTag}', [AdminBlogTagController::class, 'update'])->name('admin.blog.tags.update');
+    Route::delete('/painel/blog/tags/{blogTag}', [AdminBlogTagController::class, 'destroy'])->name('admin.blog.tags.destroy');
+
     Route::get('/arquivos/arte/{artworkFile}', ArtworkFileDownloadController::class)->name('artwork-files.download');
     Route::get('/pedidos/{order}/chat/mensagens', [OrderMessageController::class, 'index'])->name('orders.chat.messages.index');
     Route::post('/pedidos/{order}/chat/mensagens', [OrderMessageController::class, 'store'])->name('orders.chat.messages.store');
@@ -79,7 +102,10 @@ Route::get('/', HomeController::class)->name('home');
 Route::view('/quem-somos', 'store.pages.blank', ['pageTitle' => 'Quem Somos'])->name('pages.about');
 Route::view('/servicos', 'store.pages.blank', ['pageTitle' => 'Serviços'])->name('pages.services');
 Route::view('/portfolio', 'store.pages.blank', ['pageTitle' => 'Portfólio'])->name('pages.portfolio');
-Route::view('/blog', 'store.pages.blank', ['pageTitle' => 'Blog'])->name('pages.blog');
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/categoria/{blogCategory:slug}', [BlogController::class, 'category'])->name('blog.category');
+Route::get('/blog/tag/{blogTag:slug}', [BlogController::class, 'tag'])->name('blog.tag');
+Route::get('/blog/{blogPost:slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::view('/orcamento', 'store.pages.blank', ['pageTitle' => 'Orçamento'])->name('pages.quote');
 Route::view('/contato', 'store.pages.blank', ['pageTitle' => 'Contato'])->name('pages.contact');
 
