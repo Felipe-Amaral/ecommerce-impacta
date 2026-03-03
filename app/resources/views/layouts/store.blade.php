@@ -6470,6 +6470,88 @@
                 font-size: .64rem;
             }
         }
+
+        .label-help {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            margin-left: 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(198,161,74,.2);
+            background: rgba(255,255,255,.86);
+            color: #8b6f30;
+            vertical-align: middle;
+            cursor: help;
+            transition: color .16s ease, border-color .16s ease, background-color .16s ease;
+        }
+
+        .label-help .help-icon {
+            width: 12px;
+            height: 12px;
+            color: currentColor;
+        }
+
+        .label-help:hover,
+        .label-help:focus-visible {
+            color: #5f4b1e;
+            border-color: rgba(198,161,74,.32);
+            background: rgba(255,255,255,.96);
+            outline: none;
+        }
+
+        .label-help::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 4px);
+            transform: translateX(-50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            background: #201c18;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity .16s ease;
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            z-index: 7;
+        }
+
+        .label-help::after {
+            content: attr(data-help);
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 12px);
+            transform: translateX(-50%);
+            width: min(280px, 72vw);
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: #201c18;
+            color: rgba(255,255,255,.94);
+            font-size: .73rem;
+            line-height: 1.4;
+            font-weight: 600;
+            letter-spacing: .01em;
+            text-transform: none;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity .16s ease;
+            z-index: 8;
+            text-align: left;
+            box-shadow: 0 10px 20px rgba(12,10,8,.26);
+        }
+
+        .label-help:hover::before,
+        .label-help:hover::after,
+        .label-help:focus-visible::before,
+        .label-help:focus-visible::after {
+            opacity: 1;
+            visibility: visible;
+        }
     </style>
     @stack('head')
 </head>

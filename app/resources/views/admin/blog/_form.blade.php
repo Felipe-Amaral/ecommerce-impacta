@@ -9,12 +9,46 @@
         ->all();
 @endphp
 
+@once
+    @push('head')
+        <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
+        <style>
+            .blog-editor-shell {
+                border-radius: 14px;
+                border: 1px solid rgba(22,20,19,.12);
+                overflow: hidden;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.74);
+                background: rgba(255,255,255,.92);
+            }
+
+            .blog-editor-shell .toastui-editor-defaultUI {
+                border: 0;
+                font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            }
+
+            .blog-editor-shell .toastui-editor-toolbar {
+                border-bottom: 1px solid rgba(22,20,19,.1);
+                background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(249,245,238,.94));
+            }
+
+            .blog-editor-shell .toastui-editor-mode-switch {
+                border-top: 1px solid rgba(22,20,19,.1);
+                background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(249,245,238,.94));
+            }
+
+            .blog-editor-source-hidden {
+                display: none;
+            }
+        </style>
+    @endpush
+@endonce
+
 <div class="card card-pad stack-lg">
     <div class="section-head">
         <div class="copy">
             <span class="section-kicker">Blog</span>
             <h2>{{ $isEdit ? 'Editar artigo' : 'Novo artigo' }}</h2>
-            <p class="small muted">Editor em Markdown com controle completo de publicação e SEO.</p>
+            <p class="small muted">Editor robusto com visualização rica, além de controle completo de publicação e SEO.</p>
         </div>
     </div>
 
@@ -28,7 +62,10 @@
             <h3 style="margin:0; font-size:1.05rem;">Conteúdo</h3>
             <div class="form-grid-3">
                 <div class="field">
-                    <label for="blog_post_category">Categoria</label>
+                    <label for="blog_post_category">
+                        Categoria
+                        @include('partials.help-hint', ['text' => 'Define o agrupamento principal do artigo no blog e melhora a navegação por tema.'])
+                    </label>
                     <select id="blog_post_category" class="select" name="category_id">
                         <option value="">Sem categoria</option>
                         @foreach($categories as $category)
@@ -38,7 +75,10 @@
                 </div>
 
                 <div class="field">
-                    <label for="blog_post_status">Status</label>
+                    <label for="blog_post_status">
+                        Status
+                        @include('partials.help-hint', ['text' => 'Rascunho não aparece para visitantes. Agendado publica no horário definido. Publicado fica visível no blog.'])
+                    </label>
                     <select id="blog_post_status" class="select" name="status" required>
                         <option value="draft" @selected(old('status', $blogPost->status ?: 'draft') === 'draft')>Rascunho</option>
                         <option value="scheduled" @selected(old('status', $blogPost->status) === 'scheduled')>Agendado</option>
@@ -47,30 +87,48 @@
                 </div>
 
                 <div class="field">
-                    <label for="blog_post_published_at">Data/hora de publicação</label>
+                    <label for="blog_post_published_at">
+                        Data/hora de publicação
+                        @include('partials.help-hint', ['text' => 'Para status agendado, informe data futura. Para publicado, deixe vazio para usar agora.'])
+                    </label>
                     <input id="blog_post_published_at" class="input" type="datetime-local" name="published_at" value="{{ $publishedAtValue }}">
                 </div>
 
                 <div class="field full">
-                    <label for="blog_post_title">Título</label>
+                    <label for="blog_post_title">
+                        Título
+                        @include('partials.help-hint', ['text' => 'Título principal do artigo. Também é base para SEO e para geração automática do slug.'])
+                    </label>
                     <input id="blog_post_title" class="input" name="title" value="{{ old('title', $blogPost->title) }}" required>
                 </div>
 
                 <div class="field full">
-                    <label for="blog_post_slug">Slug</label>
+                    <label for="blog_post_slug">
+                        Slug
+                        @include('partials.help-hint', ['text' => 'Parte final da URL do artigo. Use termos curtos e descritivos, separados por hífen.'])
+                    </label>
                     <input id="blog_post_slug" class="input mono" name="slug" value="{{ old('slug', $blogPost->slug) }}" placeholder="gerado automaticamente se vazio">
                 </div>
 
                 <div class="field full">
-                    <label for="blog_post_excerpt">Resumo (vitrine)</label>
+                    <label for="blog_post_excerpt">
+                        Resumo (vitrine)
+                        @include('partials.help-hint', ['text' => 'Texto curto para cards do blog. Se não houver meta description, ele pode ser usado como fallback de SEO.'])
+                    </label>
                     <textarea id="blog_post_excerpt" class="textarea" name="excerpt" style="min-height:90px;">{{ old('excerpt', $blogPost->excerpt) }}</textarea>
                     <div class="tiny muted">Aparece nos cards do blog e também como fallback de meta description.</div>
                 </div>
 
                 <div class="field full">
-                    <label for="blog_post_content">Conteúdo do artigo (Markdown)</label>
+                    <label for="blog_post_content">
+                        Conteúdo do artigo
+                        @include('partials.help-hint', ['text' => 'Editor robusto com modo visual e markdown. O conteúdo salvo é markdown para manter performance e consistência.'])
+                    </label>
+                    <div id="blog_post_editor_shell" class="blog-editor-shell" hidden>
+                        <div id="blog_post_editor"></div>
+                    </div>
                     <textarea id="blog_post_content" class="textarea mono" name="content" style="min-height:280px;" required>{{ old('content', $blogPost->content) }}</textarea>
-                    <div class="tiny muted">Use Markdown: `## título`, `**negrito**`, listas e links.</div>
+                    <div class="tiny muted">Se o editor visual não carregar, este campo funciona como fallback manual em Markdown.</div>
                 </div>
             </div>
         </section>
@@ -79,13 +137,19 @@
             <h3 style="margin:0; font-size:1.05rem;">Mídia e tags</h3>
             <div class="form-grid-3">
                 <div class="field full">
-                    <label for="blog_post_cover_image">Capa (upload)</label>
+                    <label for="blog_post_cover_image">
+                        Capa (upload)
+                        @include('partials.help-hint', ['text' => 'Imagem principal do artigo para vitrine e compartilhamento. Prefira proporção horizontal, ex.: 1600x900.'])
+                    </label>
                     <input id="blog_post_cover_image" class="input" type="file" name="cover_image" accept="image/png,image/jpeg,image/webp,image/avif">
                     <div class="tiny muted">Recomendado: 1600x900 ou maior.</div>
                 </div>
 
                 <div class="field full" id="blog_cover_preview_field" style="{{ $currentCoverImageUrl ? '' : 'display:none;' }}">
-                    <label>Preview da capa</label>
+                    <label>
+                        Preview da capa
+                        @include('partials.help-hint', ['text' => 'Pré-visualização da imagem atual ou da nova imagem enviada antes de salvar.'])
+                    </label>
                     <div class="card" style="padding:10px; display:grid; gap:10px;">
                         <img
                             id="blog_cover_preview_image"
@@ -96,30 +160,45 @@
                         @if($currentCoverImageUrl)
                             <label class="radio-card" for="blog_post_remove_cover" style="margin:0;">
                                 <input id="blog_post_remove_cover" type="checkbox" name="remove_cover_image" value="1" @checked(old('remove_cover_image'))>
-                                <span>Remover capa atual</span>
+                                <span>
+                                    Remover capa atual
+                                    @include('partials.help-hint', ['text' => 'Se marcado, remove a imagem atual no salvamento.'])
+                                </span>
                             </label>
                         @endif
                     </div>
                 </div>
 
                 <div class="field full">
-                    <label for="blog_post_cover_image_url">Capa por URL (fallback)</label>
+                    <label for="blog_post_cover_image_url">
+                        Capa por URL (fallback)
+                        @include('partials.help-hint', ['text' => 'Use este campo se a capa estiver hospedada externamente. O upload local tem prioridade quando enviado.'])
+                    </label>
                     <input id="blog_post_cover_image_url" class="input" name="cover_image_url" value="{{ $currentCoverImageUrl }}" placeholder="https://...">
                 </div>
 
                 <div class="field">
-                    <label for="blog_post_reading_time_minutes">Tempo de leitura (min)</label>
+                    <label for="blog_post_reading_time_minutes">
+                        Tempo de leitura (min)
+                        @include('partials.help-hint', ['text' => 'Tempo exibido ao visitante. Se vazio, o sistema calcula automaticamente com base no conteúdo.'])
+                    </label>
                     <input id="blog_post_reading_time_minutes" class="input" type="number" min="1" max="120" name="reading_time_minutes" value="{{ old('reading_time_minutes', $blogPost->reading_time_minutes) }}">
                     <div class="tiny muted">Se vazio, calculamos automaticamente.</div>
                 </div>
 
                 <label class="radio-card" for="blog_post_is_featured" style="margin-top:24px;">
                     <input id="blog_post_is_featured" type="checkbox" name="is_featured" value="1" @checked(old('is_featured', $blogPost->is_featured))>
-                    <span>Destaque da vitrine principal</span>
+                    <span>
+                        Destaque da vitrine principal
+                        @include('partials.help-hint', ['text' => 'Artigos em destaque podem aparecer no bloco principal da home do blog.'])
+                    </span>
                 </label>
 
                 <div class="field full">
-                    <label>Tags existentes</label>
+                    <label>
+                        Tags existentes
+                        @include('partials.help-hint', ['text' => 'Tags conectam artigos por assunto transversal. Ex.: branding, flyer, acabamento.'])
+                    </label>
                     <div class="grid grid-3" style="gap:8px;">
                         @forelse($tags as $tag)
                             <label class="radio-card" for="blog_post_tag_{{ $tag->id }}">
@@ -139,7 +218,10 @@
                 </div>
 
                 <div class="field full">
-                    <label for="blog_post_new_tags">Criar tags novas (separadas por vírgula)</label>
+                    <label for="blog_post_new_tags">
+                        Criar tags novas (separadas por vírgula)
+                        @include('partials.help-hint', ['text' => 'Digite tags não cadastradas e o sistema cria automaticamente no salvamento.'])
+                    </label>
                     <input id="blog_post_new_tags" class="input" name="new_tags" value="{{ old('new_tags') }}" placeholder="Ex.: impressão digital, papelaria corporativa">
                 </div>
             </div>
@@ -159,52 +241,82 @@
 
             <div class="form-grid-3">
                 <div class="field">
-                    <label for="blog_post_focus_keyword">Keyword foco</label>
+                    <label for="blog_post_focus_keyword">
+                        Keyword foco
+                        @include('partials.help-hint', ['text' => 'Termo principal para ranqueamento. Ajuda o checklist a validar presença no título e URL.'])
+                    </label>
                     <input id="blog_post_focus_keyword" class="input" name="focus_keyword" value="{{ old('focus_keyword', $blogPost->focus_keyword) }}" placeholder="Ex.: acabamento cartão premium">
                 </div>
 
                 <div class="field">
-                    <label for="blog_post_seo_title">Meta title</label>
+                    <label for="blog_post_seo_title">
+                        Meta title
+                        @include('partials.help-hint', ['text' => 'Título para Google e redes. Ideal entre 40 e 65 caracteres.'])
+                    </label>
                     <input id="blog_post_seo_title" class="input" name="seo_title" value="{{ old('seo_title', $blogPost->seo_title) }}">
                 </div>
 
                 <div class="field">
-                    <label for="blog_post_seo_description">Meta description</label>
+                    <label for="blog_post_seo_description">
+                        Meta description
+                        @include('partials.help-hint', ['text' => 'Resumo para resultado de busca. Ideal entre 120 e 160 caracteres.'])
+                    </label>
                     <input id="blog_post_seo_description" class="input" name="seo_description" value="{{ old('seo_description', $blogPost->seo_description) }}">
                 </div>
 
                 <div class="field">
-                    <label for="blog_post_seo_canonical_url">Canonical URL</label>
+                    <label for="blog_post_seo_canonical_url">
+                        Canonical URL
+                        @include('partials.help-hint', ['text' => 'URL canônica para evitar conteúdo duplicado quando houver versões semelhantes do artigo.'])
+                    </label>
                     <input id="blog_post_seo_canonical_url" class="input" name="seo_canonical_url" value="{{ old('seo_canonical_url', $blogPost->seo_canonical_url) }}" placeholder="https://...">
                 </div>
 
                 <div class="field">
-                    <label for="blog_post_seo_og_title">OG title</label>
+                    <label for="blog_post_seo_og_title">
+                        OG title
+                        @include('partials.help-hint', ['text' => 'Título específico para compartilhamento em redes sociais.'])
+                    </label>
                     <input id="blog_post_seo_og_title" class="input" name="seo_og_title" value="{{ old('seo_og_title', $blogPost->seo_og_title) }}">
                 </div>
 
                 <div class="field">
-                    <label for="blog_post_seo_og_description">OG description</label>
+                    <label for="blog_post_seo_og_description">
+                        OG description
+                        @include('partials.help-hint', ['text' => 'Descrição específica para redes sociais.'])
+                    </label>
                     <input id="blog_post_seo_og_description" class="input" name="seo_og_description" value="{{ old('seo_og_description', $blogPost->seo_og_description) }}">
                 </div>
 
                 <div class="field full">
-                    <label for="blog_post_seo_og_image_url">OG image URL</label>
+                    <label for="blog_post_seo_og_image_url">
+                        OG image URL
+                        @include('partials.help-hint', ['text' => 'Imagem usada em compartilhamentos sociais. Se vazio, usamos a capa do artigo.'])
+                    </label>
                     <input id="blog_post_seo_og_image_url" class="input" name="seo_og_image_url" value="{{ old('seo_og_image_url', $blogPost->seo_og_image_url) }}">
                 </div>
 
                 <label class="radio-card" for="blog_post_seo_noindex" style="margin-top: 26px;">
                     <input id="blog_post_seo_noindex" type="checkbox" name="seo_noindex" value="1" @checked(old('seo_noindex', $blogPost->seo_noindex))>
-                    <span>Marcar como noindex</span>
+                    <span>
+                        Marcar como noindex
+                        @include('partials.help-hint', ['text' => 'Impede indexação em buscadores. Útil para conteúdo interno, rascunho avançado ou material temporário.'])
+                    </span>
                 </label>
 
                 <div class="card" style="padding:12px;">
-                    <div class="tiny muted" style="margin-bottom:6px;">Checklist</div>
+                    <div class="tiny muted" style="margin-bottom:6px;">
+                        Checklist
+                        @include('partials.help-hint', ['text' => 'Validação rápida dos principais pontos de SEO on-page.'])
+                    </div>
                     <ul id="seo-checklist" class="clean-list small muted" style="display:grid; gap:4px;"></ul>
                 </div>
 
                 <div class="card" style="padding:12px;">
-                    <div class="tiny muted" style="margin-bottom:6px;">Preview SERP</div>
+                    <div class="tiny muted" style="margin-bottom:6px;">
+                        Preview SERP
+                        @include('partials.help-hint', ['text' => 'Simulação aproximada de como o artigo aparece no Google.'])
+                    </div>
                     <div id="seo-preview-title" style="color:#1f5eff; font-size:.92rem; line-height:1.3; font-weight:700;"></div>
                     <div id="seo-preview-url" class="tiny" style="margin-top:4px; color:#0f8a5f;"></div>
                     <div id="seo-preview-description" class="small muted" style="margin-top:4px;"></div>
@@ -221,6 +333,12 @@
         </div>
     </form>
 </div>
+
+@once
+    @push('scripts')
+        <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+    @endpush
+@endonce
 
 @push('scripts')
     <script>
@@ -279,6 +397,8 @@
             const titleInput = document.getElementById('blog_post_title');
             const slugInput = document.getElementById('blog_post_slug');
             const contentInput = document.getElementById('blog_post_content');
+            const editorShell = document.getElementById('blog_post_editor_shell');
+            const editorRoot = document.getElementById('blog_post_editor');
             const seoTitleInput = document.getElementById('blog_post_seo_title');
             const seoDescriptionInput = document.getElementById('blog_post_seo_description');
             const canonicalInput = document.getElementById('blog_post_seo_canonical_url');
@@ -291,6 +411,46 @@
 
             if (!titleInput || !slugInput || !contentInput || !scoreValue || !checklist || !previewTitle || !previewUrl || !previewDescription) {
                 return;
+            }
+
+            const syncContentInput = (value) => {
+                contentInput.value = value;
+                contentInput.dispatchEvent(new Event('input', { bubbles: true }));
+            };
+
+            if (editorShell && editorRoot && window.toastui && window.toastui.Editor) {
+                const blogEditor = new window.toastui.Editor({
+                    el: editorRoot,
+                    initialValue: contentInput.value || '',
+                    initialEditType: 'wysiwyg',
+                    previewStyle: 'vertical',
+                    height: '420px',
+                    usageStatistics: false,
+                    hideModeSwitch: false,
+                    toolbarItems: [
+                        ['heading', 'bold', 'italic', 'strike'],
+                        ['hr', 'quote'],
+                        ['ul', 'ol', 'task'],
+                        ['table', 'link', 'image'],
+                        ['code', 'codeblock'],
+                        ['scrollSync'],
+                    ],
+                });
+
+                editorShell.hidden = false;
+                contentInput.classList.add('blog-editor-source-hidden');
+                syncContentInput(blogEditor.getMarkdown());
+
+                blogEditor.on('change', () => {
+                    syncContentInput(blogEditor.getMarkdown());
+                });
+
+                const parentForm = contentInput.closest('form');
+                if (parentForm) {
+                    parentForm.addEventListener('submit', () => {
+                        syncContentInput(blogEditor.getMarkdown());
+                    });
+                }
             }
 
             let slugTouched = slugInput.value.trim() !== '';

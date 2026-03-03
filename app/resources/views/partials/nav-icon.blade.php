@@ -53,6 +53,13 @@
             <path d="M8.5 10.3H15.5M8.5 13.2H13.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
         @break
+    @case('info')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.1" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M12 10.5V15.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="12" cy="7.8" r="1.1" fill="currentColor"/>
+        </svg>
+        @break
     @case('cart')
         <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M3.5 5.5H6L7.8 15.2H18.2L20.2 8.2H7.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
