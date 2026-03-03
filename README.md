@@ -34,10 +34,21 @@ Acesse:
 - MySQL: `localhost:3307`
 - Redis: `localhost:6380`
 
+## Hot reload (frontend)
+
+Para recarregamento automático de tela durante desenvolvimento, suba também o serviço Node/Vite:
+
+```bash
+docker compose up -d node
+```
+
+Depois disso, ao editar arquivos Blade, CSS ou JS, o navegador recarrega automaticamente.
+
 ## Serviços Docker
 
 - `nginx`: proxy web na porta `8080`
 - `app`: PHP-FPM + Composer
+- `node`: Vite dev server (HMR) na porta `5173`
 - `mysql`: banco principal
 - `redis`: cache/session/queue
 - `mailpit`: captura de e-mails em dev

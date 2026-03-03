@@ -16,6 +16,23 @@ services:
       redis:
         condition: service_started
 
+  node:
+    image: node:22-alpine
+    container_name: grafica-node
+    working_dir: /var/www/html
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    volumes:
+      - ./app:/var/www/html
+      - node-modules:/var/www/html/node_modules
+    environment:
+      VITE_USE_POLLING: "true"
+      VITE_POLL_INTERVAL: "120"
+      VITE_HMR_HOST: localhost
+      VITE_HOST: 0.0.0.0
+      VITE_PORT: 5173
+    ports:
+      - "5173:5173"
+
   reverb:
     build:
       context: .
@@ -84,3 +101,4 @@ services:
 
 volumes:
   mysql-data-v2:
+  node-modules:

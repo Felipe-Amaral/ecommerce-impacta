@@ -80,6 +80,9 @@
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <script type="application/ld+json">{!! json_encode($seoJsonLdOrganization, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}</script>
     <script type="application/ld+json">{!! json_encode($seoJsonLdWebSite, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}</script>
+    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+        @vite('resources/js/app.js')
+    @endif
     @yield('seo_json_ld')
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Fraunces:opsz,wght@9..144,600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
@@ -6106,6 +6109,129 @@
             display: none;
         }
 
+        .header-quick-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .header-quick-actions .header-quick-link:last-child {
+            margin-right: 12px;
+        }
+
+        .header-quick-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            min-height: 38px;
+            padding: 7px 11px;
+            border-radius: 12px;
+            border: 1px solid rgba(198,161,74,.18);
+            background:
+                radial-gradient(circle at 18% 0%, rgba(198,161,74,.18), transparent 52%),
+                linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,250,241,.88));
+            color: #2d251d;
+            font-size: .8rem;
+            font-weight: 800;
+            letter-spacing: .01em;
+            box-shadow:
+                0 8px 16px rgba(12,10,8,.06),
+                inset 0 1px 0 rgba(255,255,255,.82);
+            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+            white-space: nowrap;
+        }
+
+        .header-quick-link .nav-icon-svg {
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            background: rgba(198,161,74,.14);
+            padding: 3px;
+            color: #7c5f1f;
+            opacity: 1;
+        }
+
+        .header-quick-link .badge {
+            min-width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            border-radius: 999px;
+            border: 1px solid rgba(198,161,74,.22);
+            background: rgba(255,255,255,.9);
+            color: #7a5b1a;
+            font-size: .66rem;
+            line-height: 1;
+        }
+
+        .header-quick-link:hover,
+        .header-quick-link.is-active {
+            transform: translateY(-1px) scale(1.01);
+            border-color: rgba(198,161,74,.3);
+            box-shadow:
+                0 12px 20px rgba(12,10,8,.08),
+                inset 0 1px 0 rgba(255,255,255,.9);
+        }
+
+        .header-panel .nav {
+            position: relative;
+            gap: 12px;
+        }
+
+        .nav-main,
+        .nav-actions {
+            position: relative;
+            border-color: rgba(198,161,74,.16);
+            background:
+                radial-gradient(circle at 8% -10%, rgba(198,161,74,.14), transparent 44%),
+                linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.60));
+        }
+
+        .nav-main::before,
+        .nav-actions::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            border-radius: inherit;
+            background: linear-gradient(120deg, rgba(255,255,255,.24), transparent 36%, transparent 70%, rgba(198,161,74,.08));
+            opacity: .8;
+        }
+
+        .header-panel .nav-link,
+        .header-panel .nav-action-btn.btn {
+            border-color: rgba(198,161,74,.12);
+            background:
+                linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,251,245,.86));
+        }
+
+        .header-panel .nav-link .nav-icon-svg,
+        .header-panel .nav-action-btn .nav-icon-svg {
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            padding: 3px;
+        }
+
+        .header-panel .nav-main .nav-link:hover {
+            transform: translateY(-2px) rotate(-.35deg);
+        }
+
+        .header-panel .nav-actions .nav-link:hover,
+        .header-panel .nav-actions .nav-action-btn.btn:hover {
+            transform: translateY(-2px) rotate(.35deg);
+        }
+
+        @media (min-width: 981px) {
+            .header-panel .nav-link-cart,
+            .header-panel .nav-link-access {
+                display: none;
+            }
+        }
+
         @media (max-width: 980px) and (min-width: 681px) {
             .header-inner {
                 justify-content: flex-start;
@@ -6114,6 +6240,10 @@
             .header-search-inline {
                 flex: 1 1 auto;
                 min-width: 0;
+            }
+
+            .header-quick-actions {
+                display: none;
             }
         }
 
@@ -6125,6 +6255,10 @@
             .header-search-panel {
                 display: flex;
                 width: 100%;
+            }
+
+            .header-quick-actions {
+                display: none;
             }
         }
 
@@ -6141,8 +6275,8 @@
 
             .nav-link .nav-icon-svg,
             .nav-action-btn .nav-icon-svg {
-                width: 14px;
-                height: 14px;
+                width: 18px;
+                height: 18px;
                 padding: 2px;
             }
 
@@ -6166,9 +6300,9 @@
 	                    @include('partials.vertice-logo', ['variant' => 'header'])
 	                </a>
 
-	                <form class="header-search header-search-inline" method="GET" action="{{ route('catalog.index') }}" role="search" aria-label="Buscar no catálogo">
-	                    <span class="header-search-kicker">Produtos</span>
-	                    <input
+                <form class="header-search header-search-inline" method="GET" action="{{ route('catalog.index') }}" role="search" aria-label="Buscar no catálogo">
+                    <span class="header-search-kicker">Produtos</span>
+                    <input
 	                        type="search"
 	                        name="q"
 	                        value="{{ (string) request('q', '') }}"
@@ -6177,14 +6311,37 @@
 	                    >
 	                    @if(request()->filled('categoria'))
 	                        <input type="hidden" name="categoria" value="{{ request('categoria') }}">
-	                    @endif
-	                    <button class="btn btn-secondary btn-sm" type="submit">Ir</button>
-	                </form>
+                    @endif
+                    <button class="btn btn-secondary btn-sm" type="submit">Ir</button>
+                </form>
 
-	                <span class="header-meta-chip" aria-hidden="true">
-	                    @include('partials.nav-icon', ['name' => 'status-production', 'class' => 'header-meta-icon'])
-	                    <span class="dot"></span>
-	                    Pedido online, produção e retirada
+                @if(!($currentUser?->is_admin))
+                    <div class="header-quick-actions" aria-label="Acesso rápido">
+                        @auth
+                            <a class="header-quick-link {{ request()->routeIs('account.*') ? 'is-active' : '' }}" href="{{ route('account.dashboard') }}">
+                                @include('partials.nav-icon', ['name' => 'account', 'class' => 'nav-icon'])
+                                <span>Minha conta</span>
+                            </a>
+                        @else
+                            <a class="header-quick-link {{ request()->routeIs('login*') ? 'is-active' : '' }}" href="{{ route('login') }}">
+                                @include('partials.nav-icon', ['name' => 'login', 'class' => 'nav-icon'])
+                                <span>Entrar</span>
+                            </a>
+                        @endauth
+                        <a class="header-quick-link {{ request()->routeIs('cart.*') ? 'is-active' : '' }}" href="{{ route('cart.index') }}">
+                            @include('partials.nav-icon', ['name' => 'cart', 'class' => 'nav-icon'])
+                            <span>Carrinho</span>
+                            @if(($cartSummary['count'] ?? 0) > 0)
+                                <span class="badge">{{ $cartSummary['count'] }}</span>
+                            @endif
+                        </a>
+                    </div>
+                @endif
+
+                <span class="header-meta-chip" aria-hidden="true">
+                    @include('partials.nav-icon', ['name' => 'status-production', 'class' => 'header-meta-icon'])
+                    <span class="dot"></span>
+                    Pedido online, produção e retirada
                 </span>
 
                 <button
@@ -6249,7 +6406,7 @@
                                     @include('partials.nav-icon', ['name' => 'catalog', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Catálogo</span>
                                 </a>
-                                <a class="nav-link {{ request()->routeIs('cart.*') ? 'active' : '' }}" href="{{ route('cart.index') }}">
+                                <a class="nav-link nav-link-cart {{ request()->routeIs('cart.*') ? 'active' : '' }}" href="{{ route('cart.index') }}">
                                     @include('partials.nav-icon', ['name' => 'cart', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Carrinho</span>
                                     @if(($cartSummary['count'] ?? 0) > 0)
@@ -6266,7 +6423,7 @@
                                 @include('partials.nav-icon', ['name' => 'catalog', 'class' => 'nav-icon'])
                                 <span class="nav-link-label">Catálogo</span>
                             </a>
-                            <a class="nav-link {{ request()->routeIs('cart.*') ? 'active' : '' }}" href="{{ route('cart.index') }}">
+                            <a class="nav-link nav-link-cart {{ request()->routeIs('cart.*') ? 'active' : '' }}" href="{{ route('cart.index') }}">
                                 @include('partials.nav-icon', ['name' => 'cart', 'class' => 'nav-icon'])
                                 <span class="nav-link-label">Carrinho</span>
                                 @if(($cartSummary['count'] ?? 0) > 0)
@@ -6277,10 +6434,6 @@
                     </div>
 
                     <div class="nav-actions">
-                        <span class="nav-group-pill" aria-hidden="true">
-                            @include('partials.nav-icon', ['name' => (auth()->check() ? 'account' : 'login'), 'class' => 'nav-icon'])
-                            <span>{{ auth()->check() ? 'Conta e ações' : 'Acesso' }}</span>
-                        </span>
                         @auth
                             @if($currentUser?->is_admin)
                                 <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
@@ -6288,7 +6441,7 @@
                                     <span class="nav-link-label">Home pública</span>
                                 </a>
                             @else
-                                <a class="nav-link {{ request()->routeIs('account.*') ? 'active' : '' }}" href="{{ route('account.dashboard') }}">
+                                <a class="nav-link nav-link-access {{ request()->routeIs('account.*') ? 'active' : '' }}" href="{{ route('account.dashboard') }}">
                                     @include('partials.nav-icon', ['name' => 'account', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Minha Conta</span>
                                 </a>
@@ -6304,17 +6457,11 @@
                                 </button>
                             </form>
                         @else
-                            <a class="nav-link {{ request()->routeIs('login*') ? 'active' : '' }}" href="{{ route('login') }}">
+                            <a class="nav-link nav-link-access {{ request()->routeIs('login*') ? 'active' : '' }}" href="{{ route('login') }}">
                                 @include('partials.nav-icon', ['name' => 'login', 'class' => 'nav-icon'])
                                 <span class="nav-link-label">Entrar</span>
                             </a>
                         @endauth
-                        @if(!($currentUser?->is_admin))
-                            <a class="btn btn-primary header-checkout-btn nav-action-btn" href="{{ route('checkout.index') }}">
-                                @include('partials.nav-icon', ['name' => 'checkout', 'class' => 'nav-icon'])
-                                <span>Finalizar</span>
-                            </a>
-                        @endif
                     </div>
                 </nav>
             </div>
