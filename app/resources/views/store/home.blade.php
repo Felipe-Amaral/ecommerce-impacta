@@ -1793,6 +1793,14 @@
             margin-bottom: 28px;
             border-radius: 26px;
             padding: clamp(18px, 2vw, 24px);
+            border: 1px solid rgba(198,161,74,.14);
+            background:
+                radial-gradient(circle at 88% 8%, rgba(198,161,74,.16), transparent 42%),
+                radial-gradient(circle at 8% 95%, rgba(198,161,74,.08), transparent 48%),
+                linear-gradient(180deg, rgba(255,255,255,.98), rgba(251,248,241,.94));
+            box-shadow:
+                0 16px 34px rgba(12,10,8,.08),
+                inset 0 1px 0 rgba(255,255,255,.72);
         }
 
         .home-process-shell::before {
@@ -1810,16 +1818,39 @@
             z-index: 1;
         }
 
+        .home-process-shell .section-kicker {
+            color: #7a5b1a;
+        }
+
+        .home-process-shell h2 {
+            color: #1f1914;
+        }
+
+        .home-process-shell .muted {
+            color: rgba(73,64,55,.82);
+        }
+
         .home-process-shell .grid.grid-4 > .card {
             border-radius: 18px;
             backdrop-filter: blur(8px);
+            border: 1px solid rgba(198,161,74,.14);
+            background:
+                linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,252,246,.90));
+            box-shadow:
+                0 10px 20px rgba(12,10,8,.05),
+                inset 0 1px 0 rgba(255,255,255,.72);
             transition: transform .2s ease, border-color .2s ease, background .2s ease;
+        }
+
+        .home-process-shell .grid.grid-4 > .card h3 {
+            color: #1f1914;
         }
 
         .home-process-shell .grid.grid-4 > .card:hover {
             transform: translateY(-2px);
-            border-color: rgba(198,161,74,.18);
-            background: rgba(255,255,255,.08) !important;
+            border-color: rgba(198,161,74,.24);
+            background:
+                linear-gradient(180deg, rgba(255,255,255,.99), rgba(255,250,242,.92)) !important;
         }
 
         @media (max-width: 980px) {
@@ -2149,30 +2180,30 @@
         </div>
     </section>
 
-    <section class="card card-pad surface-dark stack-xl home-process-shell">
+    <section class="card card-pad stack-xl home-process-shell">
         <div class="section-head">
             <div class="copy">
-                <span class="section-kicker" style="color: rgba(248,245,239,.72);">Processos da gráfica</span>
-                <h2 style="color:#f8f5ef;">Etapas e serviços padrão para operar online</h2>
+                <span class="section-kicker">Processos da gráfica</span>
+                <h2>Etapas e serviços padrão para operar online</h2>
                 <p class="muted">Comunicação e procedimento claros ajudam o cliente a comprar com segurança e evitam retrabalho na produção.</p>
             </div>
         </div>
 
         <div class="grid grid-4">
-            <div class="card card-pad" style="background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.08); box-shadow:none;">
-                <h3 style="color:#f8f5ef;">Cobrança</h3>
+            <div class="card card-pad">
+                <h3>Cobrança</h3>
                 <p class="small muted">PIX, cartão, boleto e confirmação para liberação da produção.</p>
             </div>
-            <div class="card card-pad" style="background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.08); box-shadow:none;">
-                <h3 style="color:#f8f5ef;">Arquivo</h3>
+            <div class="card card-pad">
+                <h3>Arquivo</h3>
                 <p class="small muted">Conferência técnica, ajustes e aprovação antes da impressão.</p>
             </div>
-            <div class="card card-pad" style="background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.08); box-shadow:none;">
-                <h3 style="color:#f8f5ef;">Produção</h3>
+            <div class="card card-pad">
+                <h3>Produção</h3>
                 <p class="small muted">Impressão, acabamento e controle de prazo por pedido.</p>
             </div>
-            <div class="card card-pad" style="background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.08); box-shadow:none;">
-                <h3 style="color:#f8f5ef;">Entrega</h3>
+            <div class="card card-pad">
+                <h3>Entrega</h3>
                 <p class="small muted">Retirada local ou expedição com acompanhamento ao cliente.</p>
             </div>
         </div>

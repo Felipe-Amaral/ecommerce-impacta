@@ -6588,50 +6588,6 @@
                 </div>
             </div>
 
-            <div class="footer-grid">
-                <section class="footer-col">
-                    <h3>Produtos</h3>
-                    <p>Linhas mais procuradas para compra rápida por categoria.</p>
-                    <ul class="footer-links">
-                        <li><a href="{{ route('catalog.index', ['categoria' => 'cartoes-e-papelaria']) }}">Cartões e papelaria</a></li>
-                        <li><a href="{{ route('catalog.index', ['categoria' => 'promocionais']) }}">Flyers e promocionais</a></li>
-                        <li><a href="{{ route('catalog.index', ['categoria' => 'comunicacao-visual']) }}">Banners e comunicação visual</a></li>
-                        <li><a href="{{ route('catalog.index', ['categoria' => 'rotulos-e-etiquetas']) }}">Rótulos e etiquetas</a></li>
-                    </ul>
-                </section>
-
-                <section class="footer-col">
-                    <h3>Como comprar</h3>
-                    <p>Fluxo pensado para orçamento e pedido com confirmação rápida.</p>
-                    <ul class="footer-links">
-                        <li><a href="{{ route('catalog.index') }}">Escolher produto</a></li>
-                        <li><a href="{{ route('cart.index') }}">Revisar carrinho</a></li>
-                        <li><a href="{{ route('checkout.index') }}">Dados e pagamento</a></li>
-                        <li><a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}">Acompanhar pedido</a></li>
-                    </ul>
-                </section>
-
-                <section class="footer-col">
-                    <h3>Arquivo e produção</h3>
-                    <p>Procedimentos padrão para gráfica online e segurança na entrega.</p>
-                    <ul class="footer-links">
-                        <li><a href="{{ route('catalog.index') }}">Conferir especificações</a></li>
-                        <li><a href="{{ route('checkout.index') }}">Informar observações de arte</a></li>
-                        <li><a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}">Status de produção e entrega</a></li>
-                    </ul>
-                </section>
-
-                <section class="footer-col">
-                    <h3>Atendimento</h3>
-                    <p>Suporte para dúvidas de material, acabamento, prazo e envio.</p>
-                    <ul class="footer-links">
-                        <li><a href="{{ route('catalog.index') }}">Solicitar novo pedido</a></li>
-                        <li><a href="{{ route('login') }}">Área do cliente</a></li>
-                        <li><a href="{{ route('checkout.index') }}">Finalizar compra</a></li>
-                    </ul>
-                </section>
-            </div>
-
             <div class="footer-bottom">
                 <div class="footer-status">
                     <span class="footer-status-copy">Atendimento comercial, conferência de arquivo, produção, acabamento e expedição com acompanhamento online.</span>
