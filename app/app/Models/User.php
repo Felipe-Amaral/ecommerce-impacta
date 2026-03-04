@@ -76,4 +76,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(ContactMessage::class);
     }
+
+    public function portfolioProjects(): HasMany
+    {
+        return $this->hasMany(PortfolioProject::class, 'author_id');
+    }
 }

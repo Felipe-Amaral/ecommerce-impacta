@@ -21,11 +21,14 @@ use App\Http\Controllers\Admin\CatalogController as AdminCatalogController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ProductVariantController as AdminProductVariantController;
+use App\Http\Controllers\Admin\PortfolioCategoryController as AdminPortfolioCategoryController;
+use App\Http\Controllers\Admin\PortfolioProjectController as AdminPortfolioProjectController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\ArtworkFileDownloadController;
 use App\Http\Controllers\OrderMessageController;
+use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\Webhooks\MercadoPagoWebhookController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
@@ -99,6 +102,19 @@ Route::middleware('auth')->group(function (): void {
     Route::put('/painel/blog/tags/{blogTag}', [AdminBlogTagController::class, 'update'])->name('admin.blog.tags.update');
     Route::delete('/painel/blog/tags/{blogTag}', [AdminBlogTagController::class, 'destroy'])->name('admin.blog.tags.destroy');
 
+    Route::get('/painel/portfolio', [AdminPortfolioProjectController::class, 'index'])->name('admin.portfolio.index');
+    Route::get('/painel/portfolio/novo', [AdminPortfolioProjectController::class, 'create'])->name('admin.portfolio.create');
+    Route::post('/painel/portfolio', [AdminPortfolioProjectController::class, 'store'])->name('admin.portfolio.store');
+    Route::get('/painel/portfolio/{portfolioProject}/editar', [AdminPortfolioProjectController::class, 'edit'])->name('admin.portfolio.edit');
+    Route::put('/painel/portfolio/{portfolioProject}', [AdminPortfolioProjectController::class, 'update'])->name('admin.portfolio.update');
+    Route::delete('/painel/portfolio/{portfolioProject}', [AdminPortfolioProjectController::class, 'destroy'])->name('admin.portfolio.destroy');
+    Route::patch('/painel/portfolio/{portfolioProject}/publicar', [AdminPortfolioProjectController::class, 'publish'])->name('admin.portfolio.publish');
+    Route::patch('/painel/portfolio/{portfolioProject}/rascunho', [AdminPortfolioProjectController::class, 'draft'])->name('admin.portfolio.draft');
+    Route::get('/painel/portfolio/categorias', [AdminPortfolioCategoryController::class, 'index'])->name('admin.portfolio.categories.index');
+    Route::post('/painel/portfolio/categorias', [AdminPortfolioCategoryController::class, 'store'])->name('admin.portfolio.categories.store');
+    Route::put('/painel/portfolio/categorias/{portfolioCategory}', [AdminPortfolioCategoryController::class, 'update'])->name('admin.portfolio.categories.update');
+    Route::delete('/painel/portfolio/categorias/{portfolioCategory}', [AdminPortfolioCategoryController::class, 'destroy'])->name('admin.portfolio.categories.destroy');
+
     Route::get('/arquivos/arte/{artworkFile}', ArtworkFileDownloadController::class)->name('artwork-files.download');
     Route::get('/pedidos/{order}/chat/mensagens', [OrderMessageController::class, 'index'])->name('orders.chat.messages.index');
     Route::post('/pedidos/{order}/chat/mensagens', [OrderMessageController::class, 'store'])->name('orders.chat.messages.store');
@@ -106,8 +122,10 @@ Route::middleware('auth')->group(function (): void {
 
 Route::get('/', HomeController::class)->name('home');
 Route::view('/quem-somos', 'store.pages.blank', ['pageTitle' => 'Quem Somos'])->name('pages.about');
-Route::view('/servicos', 'store.pages.blank', ['pageTitle' => 'Serviços'])->name('pages.services');
-Route::view('/portfolio', 'store.pages.blank', ['pageTitle' => 'Portfólio'])->name('pages.portfolio');
+Route::view('/servicos', 'store.pages.services')->name('pages.services');
+Route::get('/portfolio', [PortfolioController::class, 'index'])->name('pages.portfolio');
+Route::get('/portfolio/categoria/{portfolioCategory:slug}', [PortfolioController::class, 'category'])->name('portfolio.category');
+Route::get('/portfolio/{portfolioProject:slug}', [PortfolioController::class, 'show'])->name('portfolio.show');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/categoria/{blogCategory:slug}', [BlogController::class, 'category'])->name('blog.category');
 Route::get('/blog/tag/{blogTag:slug}', [BlogController::class, 'tag'])->name('blog.tag');

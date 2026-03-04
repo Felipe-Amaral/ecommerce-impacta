@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
             CatalogSeeder::class,
             HomeBannerSeeder::class,
             BlogSeeder::class,
+            PortfolioSeeder::class,
             DemoOrdersSeeder::class,
         ]);
     }

@@ -104,6 +104,7 @@
                     <a href="{{ route('admin.orders.index') }}" class="btn btn-secondary btn-sm">Ver todos os pedidos</a>
                     <a href="{{ route('admin.catalog.index') }}" class="btn btn-secondary btn-sm">Cadastros</a>
                     <a href="{{ route('admin.blog.index') }}" class="btn btn-secondary btn-sm">Blog</a>
+                    <a href="{{ route('admin.portfolio.index') }}" class="btn btn-secondary btn-sm">Portfólio</a>
                     <a href="{{ route('admin.contacts.index') }}" class="btn btn-secondary btn-sm">Contatos</a>
                 </div>
             </div>

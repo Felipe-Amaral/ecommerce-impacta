@@ -27,6 +27,55 @@
             <path d="M16 11L14.7 13.8L12 15.1L14.7 16.4L16 19.2L17.3 16.4L20 15.1L17.3 13.8L16 11Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
         </svg>
         @break
+    @case('traffic')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 17.5L12 6.5L18 17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8.4 13.2H15.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M12 6.5V4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        @break
+    @case('social')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="6.8" cy="12" r="1.9" stroke="currentColor" stroke-width="1.8"/>
+            <circle cx="17.2" cy="7.4" r="1.9" stroke="currentColor" stroke-width="1.8"/>
+            <circle cx="17.2" cy="16.6" r="1.9" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M8.6 11.2L15.3 8.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M8.6 12.8L15.3 15.9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        @break
+    @case('seo')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="10.4" cy="10.4" r="4.9" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M13.8 13.8L18.8 18.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M8.6 10.4H12.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M10.4 8.6V12.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        @break
+    @case('app')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="7.2" y="3.8" width="9.6" height="16.4" rx="2.2" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M9.6 6.8H14.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="12" cy="16.8" r="1" fill="currentColor"/>
+        </svg>
+        @break
+    @case('server')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="4.5" y="5.2" width="15" height="4.8" rx="1.6" stroke="currentColor" stroke-width="1.8"/>
+            <rect x="4.5" y="12" width="15" height="4.8" rx="1.6" stroke="currentColor" stroke-width="1.8"/>
+            <circle cx="8" cy="7.6" r="0.9" fill="currentColor"/>
+            <circle cx="8" cy="14.4" r="0.9" fill="currentColor"/>
+            <path d="M11 7.6H16.2M11 14.4H16.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        @break
+    @case('integration')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M8.5 8.5H5.5V5.5H8.5V8.5Z" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M18.5 8.5H15.5V5.5H18.5V8.5Z" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M8.5 18.5H5.5V15.5H8.5V18.5Z" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M18.5 18.5H15.5V15.5H18.5V18.5Z" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M8.5 7H12.5V11M16 8.5V12.5H12M8.5 16.5H12.5V12M16 15.5V11.5H12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        @break
     @case('portfolio')
         <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <rect x="4.5" y="5.5" width="15" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/>

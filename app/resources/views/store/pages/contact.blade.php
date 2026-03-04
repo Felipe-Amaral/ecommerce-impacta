@@ -6,6 +6,10 @@
 @section('og_type', 'website')
 
 @php
+    $selectedServiceInterest = old('service_interest', $prefillServiceInterest ?? '');
+    $selectedSubject = old('subject', $prefillSubject ?? '');
+    $selectedMessage = old('message', $prefillMessage ?? '');
+
     $errorTargets = [
         'name' => 'contact_name',
         'email' => 'contact_email',
@@ -717,7 +721,7 @@
                                 id="contact_subject"
                                 class="input"
                                 name="subject"
-                                value="{{ old('subject') }}"
+                                value="{{ $selectedSubject }}"
                                 aria-invalid="{{ $errors->has('subject') ? 'true' : 'false' }}"
                                 aria-describedby="{{ $errors->has('subject') ? 'contact_subject_error' : 'contact_subject_help' }}"
                             >
@@ -742,7 +746,7 @@
                             >
                                 <option value="">Selecione</option>
                                 @foreach ($serviceOptions as $value => $label)
-                                    <option value="{{ $value }}" @selected(old('service_interest') === $value)>{{ $label }}</option>
+                                    <option value="{{ $value }}" @selected($selectedServiceInterest === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
                             @if ($errors->has('service_interest'))
@@ -783,7 +787,7 @@
                                 name="message"
                                 aria-invalid="{{ $errors->has('message') ? 'true' : 'false' }}"
                                 aria-describedby="{{ $errors->has('message') ? 'contact_message_error' : 'contact_message_help' }}"
-                            >{{ old('message') }}</textarea>
+                            >{{ $selectedMessage }}</textarea>
                             @if ($errors->has('message'))
                                 <span id="contact_message_error" class="contact-error">{{ $errors->first('message') }}</span>
                             @else

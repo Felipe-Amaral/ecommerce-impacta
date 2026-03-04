@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreContactMessageRequest;
 use App\Models\ContactMessage;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ContactController extends Controller
@@ -16,8 +18,12 @@ class ContactController extends Controller
     {
         return [
             'orcamento' => 'Orçamento',
-            'suporte-pedido' => 'Suporte de pedido',
             'servicos-graficos' => 'Serviços gráficos',
+            'trafego-pago' => 'Tráfego pago e mídia de performance',
+            'redes-sociais' => 'Gestão de redes sociais',
+            'marketing-integrado' => 'Plano de marketing integrado',
+            'tecnologia-octhopus' => 'Soluções de tecnologia (Octhopus Labs)',
+            'suporte-pedido' => 'Suporte de pedido',
             'parceria' => 'Parcerias comerciais',
             'outros' => 'Outros assuntos',
         ];
@@ -35,12 +41,21 @@ class ContactController extends Controller
         ];
     }
 
-    public function show(): View
+    public function show(Request $request): View
     {
+        $serviceOptions = $this->serviceOptions();
+        $prefillServiceInterest = trim((string) $request->query('service_interest', ''));
+        if (! array_key_exists($prefillServiceInterest, $serviceOptions)) {
+            $prefillServiceInterest = '';
+        }
+
         return view('store.pages.contact', [
-            'serviceOptions' => $this->serviceOptions(),
+            'serviceOptions' => $serviceOptions,
             'preferredContactOptions' => $this->preferredContactOptions(),
             'formStartedAt' => now()->timestamp,
+            'prefillServiceInterest' => $prefillServiceInterest,
+            'prefillSubject' => Str::limit(trim((string) $request->query('subject', '')), 140, ''),
+            'prefillMessage' => Str::limit(trim((string) $request->query('message', '')), 5000, ''),
         ]);
     }
 

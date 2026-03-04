@@ -6,8 +6,12 @@
 @php
     $serviceLabels = [
         'orcamento' => 'Orçamento',
-        'suporte-pedido' => 'Suporte de pedido',
         'servicos-graficos' => 'Serviços gráficos',
+        'trafego-pago' => 'Tráfego pago e mídia de performance',
+        'redes-sociais' => 'Gestão de redes sociais',
+        'marketing-integrado' => 'Plano de marketing integrado',
+        'tecnologia-octhopus' => 'Soluções de tecnologia (Octhopus Labs)',
+        'suporte-pedido' => 'Suporte de pedido',
         'parceria' => 'Parceria comercial',
         'outros' => 'Outros assuntos',
     ];
