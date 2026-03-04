@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
 use App\Http\Controllers\Admin\BlogTagController as AdminBlogTagController;
 use App\Http\Controllers\Admin\HomeBannerController as AdminHomeBannerController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\LiveChatMonitorController as AdminLiveChatMonitorController;
 use App\Http\Controllers\Admin\ArtworkFileReviewController;
 use App\Http\Controllers\Admin\CatalogController as AdminCatalogController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\ArtworkFileDownloadController;
 use App\Http\Controllers\OrderMessageController;
+use App\Http\Controllers\LiveChatController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\Webhooks\MercadoPagoWebhookController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
@@ -60,6 +62,11 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/painel/contatos/{contactMessage}', [AdminContactMessageController::class, 'show'])->name('admin.contacts.show');
     Route::patch('/painel/contatos/{contactMessage}/status', [AdminContactMessageController::class, 'updateStatus'])->name('admin.contacts.status.update');
     Route::patch('/painel/contatos/{contactMessage}/lido', [AdminContactMessageController::class, 'markRead'])->name('admin.contacts.read');
+    Route::get('/painel/atendimento-online', [AdminLiveChatMonitorController::class, 'index'])->name('admin.livechat.index');
+    Route::get('/painel/atendimento-online/dados', [AdminLiveChatMonitorController::class, 'snapshot'])->name('admin.livechat.data');
+    Route::get('/painel/atendimento-online/sessoes/{liveChatSession}', [AdminLiveChatMonitorController::class, 'messages'])->name('admin.livechat.sessions.show');
+    Route::post('/painel/atendimento-online/sessoes/{liveChatSession}/mensagens', [AdminLiveChatMonitorController::class, 'storeMessage'])->name('admin.livechat.sessions.messages.store');
+    Route::patch('/painel/atendimento-online/sessoes/{liveChatSession}/encerrar', [AdminLiveChatMonitorController::class, 'close'])->name('admin.livechat.sessions.close');
     Route::patch('/painel/arquivos/{artworkFile}/revisao', ArtworkFileReviewController::class)->name('admin.artwork.review');
 
     Route::get('/painel/cadastros', AdminCatalogController::class)->name('admin.catalog.index');
@@ -133,6 +140,11 @@ Route::get('/blog/{blogPost:slug}', [BlogController::class, 'show'])->name('blog
 Route::view('/orcamento', 'store.pages.blank', ['pageTitle' => 'Orçamento'])->name('pages.quote');
 Route::get('/contato', [ContactController::class, 'show'])->name('pages.contact');
 Route::post('/contato', [ContactController::class, 'store'])->name('pages.contact.store');
+Route::post('/chat/heartbeat', [LiveChatController::class, 'heartbeat'])->name('livechat.heartbeat');
+Route::post('/chat/poll', [LiveChatController::class, 'poll'])->name('livechat.poll');
+Route::post('/chat/sessao', [LiveChatController::class, 'open'])->name('livechat.session.open');
+Route::post('/chat/mensagem', [LiveChatController::class, 'sendMessage'])->name('livechat.message.store');
+Route::post('/chat/mensagem-offline', [LiveChatController::class, 'leaveOfflineMessage'])->name('livechat.message.offline');
 
 Route::get('/catalogo', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/catalogo/{slug}', [CatalogController::class, 'show'])->name('catalog.show');

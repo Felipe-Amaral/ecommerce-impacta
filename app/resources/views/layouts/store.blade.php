@@ -48,6 +48,7 @@
     @endphp
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $seoTitle }}</title>
     <meta name="description" content="{{ $seoDescription }}" />
     <meta name="robots" content="{{ $seoRobots }}">
@@ -6655,6 +6656,10 @@
                                     @include('partials.nav-icon', ['name' => 'contact', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Contatos</span>
                                 </a>
+                                <a class="nav-link {{ request()->routeIs('admin.livechat.*') ? 'active' : '' }}" href="{{ route('admin.livechat.index') }}">
+                                    @include('partials.nav-icon', ['name' => 'livechat', 'class' => 'nav-icon'])
+                                    <span class="nav-link-label">Atendimento</span>
+                                </a>
                                 <a class="nav-link {{ request()->routeIs('admin.catalog.*') ? 'active' : '' }}" href="{{ route('admin.catalog.index') }}">
                                     @include('partials.nav-icon', ['name' => 'cadastros', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Cadastros</span>
@@ -6910,6 +6915,10 @@
                     @include('partials.nav-icon', ['name' => 'contact', 'class' => 'nav-icon'])
                     <span class="nav-link-label">Contatos</span>
                 </a>
+                <a href="{{ route('admin.livechat.index') }}" class="{{ request()->routeIs('admin.livechat.*') ? 'active' : '' }}">
+                    @include('partials.nav-icon', ['name' => 'livechat', 'class' => 'nav-icon'])
+                    <span class="nav-link-label">Atendimento</span>
+                </a>
                 <a href="{{ route('admin.catalog.index') }}" class="{{ request()->routeIs('admin.catalog.*') ? 'active' : '' }}">
                     @include('partials.nav-icon', ['name' => 'cadastros', 'class' => 'nav-icon'])
                     <span class="nav-link-label">Cadastros</span>
@@ -6969,6 +6978,8 @@
             </a>
         @endauth
     </nav>
+
+    @include('store.partials.live-chat-widget')
 
     <script>
         (function () {

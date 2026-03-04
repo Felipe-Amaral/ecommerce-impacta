@@ -102,6 +102,13 @@
             <path d="M8.5 10.3H15.5M8.5 13.2H13.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
         @break
+    @case('livechat')
+        <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5.5 6.5H18.5C19.1 6.5 19.5 6.9 19.5 7.5V15.5C19.5 16.1 19.1 16.5 18.5 16.5H11.2L7 19.5V16.5H5.5C4.9 16.5 4.5 16.1 4.5 15.5V7.5C4.5 6.9 4.9 6.5 5.5 6.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M8.3 10.5H12.2M8.3 13.2H15.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="16.9" cy="10.3" r="1.1" fill="currentColor"/>
+        </svg>
+        @break
     @case('info')
         <svg class="{{ $iconClass }}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="12" cy="12" r="8.1" stroke="currentColor" stroke-width="1.8"/>

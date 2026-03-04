@@ -81,4 +81,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(PortfolioProject::class, 'author_id');
     }
+
+    public function liveVisitors(): HasMany
+    {
+        return $this->hasMany(LiveVisitor::class);
+    }
+
+    public function liveChatSessions(): HasMany
+    {
+        return $this->hasMany(LiveChatSession::class);
+    }
+
+    public function assignedLiveChatSessions(): HasMany
+    {
+        return $this->hasMany(LiveChatSession::class, 'assigned_admin_id');
+    }
+
+    public function liveChatMessages(): HasMany
+    {
+        return $this->hasMany(LiveChatMessage::class);
+    }
 }
