@@ -23,8 +23,18 @@
         $seoOgImage = trim($__env->yieldContent('og_image', asset('favicon.svg?v=uriah2')));
         $siteName = 'Uriah Criativa';
         $siteUrl = url('/');
+        $requestHost = request()->getHost();
+        $loopbackHosts = ['localhost', '127.0.0.1', '::1'];
+        $hotFilePath = public_path('hot');
+        $manifestFilePath = public_path('build/manifest.json');
+        $hasHotFile = file_exists($hotFilePath);
+        $hasManifestFile = file_exists($manifestFilePath);
+        $canUseHotReload = $hasHotFile && in_array($requestHost, $loopbackHosts, true);
         $seoTitle = str_replace(['Gráfica Impacta', 'Grafica Impacta'], 'Uriah Criativa', $seoTitle);
         $seoDescription = str_replace(['Gráfica Impacta', 'Grafica Impacta'], 'Uriah Criativa', $seoDescription);
+        if (str_starts_with($seoOgImage, '/')) {
+            $seoOgImage = url($seoOgImage);
+        }
         $seoJsonLdWebSite = [
             '@context' => 'https://schema.org',
             '@type' => 'WebSite',
@@ -81,7 +91,10 @@
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <script type="application/ld+json">{!! json_encode($seoJsonLdOrganization, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}</script>
     <script type="application/ld+json">{!! json_encode($seoJsonLdWebSite, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}</script>
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+    @if ($canUseHotReload || $hasManifestFile)
+        @if (! $canUseHotReload && $hasManifestFile)
+            @php(\Illuminate\Support\Facades\Vite::useHotFile(storage_path('framework/vite.hot.disabled')))
+        @endif
         @vite('resources/js/app.js')
     @endif
     @yield('seo_json_ld')

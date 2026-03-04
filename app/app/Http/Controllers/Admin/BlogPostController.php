@@ -221,7 +221,9 @@ class BlogPostController extends Controller
      */
     private function payloadFromValidated(Request $request, array $data, ?BlogPost $existingPost): array
     {
-        $coverImageUrl = $this->nullableTrim($data['cover_image_url'] ?? ($existingPost?->cover_image_url));
+        $coverImageUrl = $this->normalizePublicStorageUrl(
+            $this->nullableTrim($data['cover_image_url'] ?? ($existingPost?->cover_image_url))
+        );
 
         if ((bool) ($data['remove_cover_image'] ?? false)) {
             $this->deleteManagedCoverImage($existingPost?->cover_image_url);
@@ -361,7 +363,7 @@ class BlogPostController extends Controller
 
         $path = $file->storeAs('blog-posts', $filename, 'public');
 
-        return Storage::disk('public')->url($path);
+        return '/storage/'.$path;
     }
 
     private function deleteManagedCoverImage(?string $imageUrl): void
@@ -383,18 +385,34 @@ class BlogPostController extends Controller
             return null;
         }
 
-        $appUrl = rtrim((string) config('app.url'), '/');
-        $prefixes = ['/storage/', $appUrl !== '' ? $appUrl.'/storage/' : null];
+        $path = parse_url($value, PHP_URL_PATH);
+        $candidate = is_string($path) && $path !== '' ? $path : $value;
 
-        foreach (array_filter($prefixes) as $prefix) {
-            if (str_starts_with($value, $prefix)) {
-                $relative = ltrim(Str::after($value, $prefix), '/');
+        if (str_starts_with($candidate, '/storage/')) {
+            $relative = ltrim(Str::after($candidate, '/storage/'), '/');
 
-                return str_starts_with($relative, 'blog-posts/') ? $relative : null;
-            }
+            return str_starts_with($relative, 'blog-posts/') ? $relative : null;
         }
 
         return null;
+    }
+
+    private function normalizePublicStorageUrl(?string $imageUrl): ?string
+    {
+        $value = trim((string) $imageUrl);
+
+        if ($value === '') {
+            return null;
+        }
+
+        $path = parse_url($value, PHP_URL_PATH);
+        $candidate = is_string($path) && $path !== '' ? $path : $value;
+
+        if (str_starts_with($candidate, '/storage/')) {
+            return $candidate;
+        }
+
+        return $value;
     }
 
     private function assertAdmin(): void

@@ -1130,16 +1130,17 @@
             width: 100%;
             line-height: 0;
             background: #111;
-            height: var(--home-banner-height);
-            max-height: min(72vh, 620px);
-            overflow: hidden;
+            height: auto;
+            max-height: none;
+            overflow: visible;
         }
 
         .home-banner-image {
             display: block;
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
             object-position: center;
         }
 

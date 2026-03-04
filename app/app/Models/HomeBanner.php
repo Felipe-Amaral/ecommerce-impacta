@@ -58,4 +58,23 @@ class HomeBanner extends Model
                     ->orWhere('ends_at', '>=', now());
             });
     }
+
+    public function getBackgroundImageUrlAttribute(?string $value): ?string
+    {
+        $raw = trim((string) $value);
+        if ($raw === '') {
+            return null;
+        }
+
+        $path = parse_url($raw, PHP_URL_PATH);
+        if (is_string($path) && str_starts_with($path, '/storage/home-banners/')) {
+            return $path;
+        }
+
+        if (str_starts_with($raw, '/storage/home-banners/')) {
+            return $raw;
+        }
+
+        return $raw;
+    }
 }

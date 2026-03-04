@@ -113,4 +113,33 @@ class BlogPost extends Model
 
         return $image !== '' ? $image : null;
     }
+
+    public function getCoverImageUrlAttribute(?string $value): ?string
+    {
+        return $this->normalizeLocalStorageImageUrl($value, '/storage/blog-posts/');
+    }
+
+    public function getSeoOgImageUrlAttribute(?string $value): ?string
+    {
+        return $this->normalizeLocalStorageImageUrl($value, '/storage/blog-posts/');
+    }
+
+    private function normalizeLocalStorageImageUrl(?string $value, string $storagePrefix): ?string
+    {
+        $raw = trim((string) $value);
+        if ($raw === '') {
+            return null;
+        }
+
+        $path = parse_url($raw, PHP_URL_PATH);
+        if (is_string($path) && str_starts_with($path, $storagePrefix)) {
+            return $path;
+        }
+
+        if (str_starts_with($raw, $storagePrefix)) {
+            return $raw;
+        }
+
+        return $raw;
+    }
 }
