@@ -7,6 +7,8 @@ use App\Http\Requests\UpdateCartItemRequest;
 use App\Models\ProductVariant;
 use App\Services\CartService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class CartController extends Controller
@@ -33,11 +35,14 @@ class CartController extends Controller
             return back()->withErrors(['variant_id' => 'Esta variação não está disponível no momento.']);
         }
 
+        $artworkUpload = $this->storeArtworkUpload($request->file('artwork_file'));
+
         $this->cartService->addVariant(
             $variant,
             $request->integer('quantity'),
             (array) $request->input('configuration', []),
             $request->string('artwork_notes')->toString(),
+            $artworkUpload,
         );
 
         return redirect()
@@ -61,5 +66,25 @@ class CartController extends Controller
         return redirect()
             ->route('cart.index')
             ->with('success', 'Item removido do carrinho.');
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function storeArtworkUpload(?UploadedFile $file): ?array
+    {
+        if (! $file) {
+            return null;
+        }
+
+        $path = Storage::disk('public')->putFile('cart-artworks', $file);
+
+        return [
+            'disk' => 'public',
+            'path' => $path,
+            'original_name' => $file->getClientOriginalName(),
+            'mime_type' => $file->getClientMimeType(),
+            'size_bytes' => $file->getSize(),
+        ];
     }
 }

@@ -1,6 +1,21 @@
 @extends('layouts.store')
 
 @php
+    $resolveProductImage = static function (?string $rawPath): ?string {
+        $path = trim((string) $rawPath);
+        if ($path === '') {
+            return null;
+        }
+
+        return match (true) {
+            \Illuminate\Support\Str::startsWith($path, ['http://', 'https://']) => $path,
+            \Illuminate\Support\Str::startsWith($path, '/storage/') => url($path),
+            \Illuminate\Support\Str::startsWith($path, 'storage/') => asset($path),
+            \Illuminate\Support\Str::startsWith($path, '/') => url($path),
+            default => asset('storage/'.ltrim($path, '/')),
+        };
+    };
+
     $variantOptions = $product->variants->sortBy('sort_order')->values();
     $firstVariant = $variantOptions->first();
     $firstVariantPrice = (float) ($firstVariant?->promotional_price ?: $firstVariant?->price ?: $product->base_price);
@@ -8,18 +23,31 @@
     $firstVariantProductionDays = (int) ($firstVariant?->production_days ?: $product->lead_time_days);
     $productCanonical = route('catalog.show', $product->slug);
 
+    $galleryItems = $product->images
+        ->sortBy('sort_order')
+        ->values()
+        ->map(function ($image) use ($resolveProductImage): array {
+            return [
+                'url' => $resolveProductImage($image->path),
+                'alt' => trim((string) ($image->alt_text ?: 'Foto do produto')),
+                'sort_order' => (int) ($image->sort_order ?? 0),
+            ];
+        })
+        ->filter(fn (array $image): bool => ! empty($image['url']))
+        ->values();
+
     $productPrimaryImage = $product->images->firstWhere('is_primary', true) ?: $product->images->first();
     $productOgImagePath = $productPrimaryImage?->path;
-    $productOgImage = match (true) {
-        ! $productOgImagePath => asset('favicon.svg?v=uriah2'),
-        \Illuminate\Support\Str::startsWith((string) $productOgImagePath, ['http://', 'https://']) => (string) $productOgImagePath,
-        \Illuminate\Support\Str::startsWith((string) $productOgImagePath, '/storage/') => url((string) $productOgImagePath),
-        \Illuminate\Support\Str::startsWith((string) $productOgImagePath, 'storage/') => asset((string) $productOgImagePath),
-        default => asset('storage/'.ltrim((string) $productOgImagePath, '/')),
-    };
+    $productOgImage = $resolveProductImage($productOgImagePath) ?: asset('favicon.svg?v=uriah2');
 
     $productMetaTitle = (string) ($product->seo_title ?: ($product->name.' | Uriah Criativa'));
     $productMetaDescription = (string) ($product->seo_description ?: ($product->short_description ?: 'Produto gráfico disponível para compra online.'));
+
+    $quoteUrl = route('pages.contact', [
+        'service_interest' => 'orcamento',
+        'subject' => 'Orcamento: '.$product->name,
+        'message' => 'Quero solicitar um orcamento para '.$product->name.'.',
+    ]);
 
     $breadcrumbSchema = [
         '@context' => 'https://schema.org',
@@ -97,6 +125,57 @@
     <script type="application/ld+json">{!! json_encode($productSchema, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}</script>
 @endsection
 
+@push('head')
+<style>
+    .product-gallery {
+        display: grid;
+        gap: 10px;
+    }
+
+    .product-gallery-main {
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid rgba(22,20,19,.08);
+        background: rgba(255,255,255,.86);
+        min-height: 320px;
+    }
+
+    .product-gallery-main img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .product-gallery-thumbs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .product-gallery-thumb {
+        border-radius: 10px;
+        border: 1px solid rgba(22,20,19,.10);
+        overflow: hidden;
+        padding: 0;
+        background: rgba(255,255,255,.9);
+        cursor: pointer;
+    }
+
+    .product-gallery-thumb img {
+        width: 100%;
+        aspect-ratio: 4/3;
+        object-fit: cover;
+        display: block;
+    }
+
+    .product-gallery-thumb.is-active {
+        border-color: rgba(198,161,74,.35);
+        box-shadow: 0 8px 14px rgba(198,161,74,.16);
+    }
+</style>
+@endpush
+
 @section('content')
     <nav aria-label="Breadcrumb" class="small muted" style="margin: 2px 0 12px;">
         <a href="{{ route('home') }}">Início</a>
@@ -130,21 +209,45 @@
                 </div>
 
                 <div class="card card-pad" style="overflow:hidden;">
-                    <div class="product-thumb" style="min-height: 260px; position:relative; background:
-                        radial-gradient(circle at 10% 16%, rgba(195,58,29,.12), transparent 44%),
-                        radial-gradient(circle at 88% 8%, rgba(15,93,245,.12), transparent 46%),
-                        linear-gradient(140deg, rgba(255,255,255,.9), rgba(247,240,231,.95));">
-                        <div class="stack" style="gap:8px; position:relative; z-index:1;">
-                            <span class="product-brow">Pré-visualização conceitual</span>
-                            @include('store.partials.print-mockup', ['product' => $product, 'size' => 'lg', 'title' => $product->name])
-                            <span class="small muted">Imagem ilustrativa da peça. A arte final é conferida antes da produção.</span>
-                            <div class="checkout-progress" style="justify-content:center;">
-                                <span class="step-chip"><span class="n">1</span> Configuração</span>
-                                <span class="step-chip"><span class="n">2</span> Cobrança</span>
-                                <span class="step-chip"><span class="n">3</span> Produção</span>
+                    @if($galleryItems->isNotEmpty())
+                        <div class="product-gallery" data-product-gallery>
+                            <div class="product-gallery-main">
+                                <img
+                                    id="product-gallery-main-image"
+                                    src="{{ $galleryItems->first()['url'] }}"
+                                    alt="{{ $galleryItems->first()['alt'] }}"
+                                    loading="eager"
+                                >
+                            </div>
+
+                            <div class="product-gallery-thumbs" role="tablist" aria-label="Galeria do produto">
+                                @foreach($galleryItems->take(6) as $image)
+                                    <button
+                                        type="button"
+                                        class="product-gallery-thumb {{ $loop->first ? 'is-active' : '' }}"
+                                        data-gallery-thumb
+                                        data-image-url="{{ $image['url'] }}"
+                                        data-image-alt="{{ $image['alt'] }}"
+                                        aria-label="Visual {{ $loop->iteration }} do produto"
+                                        aria-current="{{ $loop->first ? 'true' : 'false' }}"
+                                    >
+                                        <img src="{{ $image['url'] }}" alt="{{ $image['alt'] }}" loading="lazy">
+                                    </button>
+                                @endforeach
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="product-thumb" style="min-height: 260px; position:relative; background:
+                            radial-gradient(circle at 10% 16%, rgba(195,58,29,.12), transparent 44%),
+                            radial-gradient(circle at 88% 8%, rgba(15,93,245,.12), transparent 46%),
+                            linear-gradient(140deg, rgba(255,255,255,.9), rgba(247,240,231,.95));">
+                            <div class="stack" style="gap:8px; position:relative; z-index:1;">
+                                <span class="product-brow">Pre-visualizacao conceitual</span>
+                                @include('store.partials.print-mockup', ['product' => $product, 'size' => 'lg', 'title' => $product->name])
+                                <span class="small muted">Imagem ilustrativa da peca. A arte final e conferida antes da producao.</span>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -160,7 +263,7 @@
                     </div>
                 </div>
 
-                <form method="POST" action="{{ route('cart.items.store') }}" class="stack" id="product-config-form">
+                <form method="POST" action="{{ route('cart.items.store') }}" class="stack" id="product-config-form" enctype="multipart/form-data">
                     @csrf
 
                     <div class="field">
@@ -185,6 +288,21 @@
                     </div>
 
                     <div class="field">
+                        <label for="artwork_file">Upload da arte (opcional)</label>
+                        <input
+                            id="artwork_file"
+                            name="artwork_file"
+                            class="input"
+                            type="file"
+                            accept=".pdf,.ai,.eps,.psd,.cdr,.zip,.jpg,.jpeg,.png"
+                        />
+                        <span class="tiny muted">Formatos aceitos: PDF, AI, EPS, PSD, CDR, ZIP, JPG e PNG (ate 20MB).</span>
+                        @error('artwork_file')
+                            <span class="tiny" style="color:#8f221c;">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="field">
                         <label for="configuration_briefing">Briefing / observações do material</label>
                         <textarea id="configuration_briefing" name="configuration[briefing]" class="textarea" placeholder="Ex.: frente e verso, verniz localizado, acabamento..." >{{ old('configuration.briefing') }}</textarea>
                     </div>
@@ -195,6 +313,7 @@
                     </div>
 
                     <button class="btn btn-primary" type="submit">Adicionar ao carrinho</button>
+                    <a href="{{ $quoteUrl }}" class="btn btn-secondary">Solicitar orçamento</a>
                     <span class="small muted">Após o pedido, a equipe confirma pagamento e orienta o envio da arte final para conferência.</span>
                 </form>
 
@@ -319,6 +438,31 @@
 
 @push('scripts')
 <script>
+    (function () {
+        const galleryRoot = document.querySelector('[data-product-gallery]');
+        const mainImage = document.getElementById('product-gallery-main-image');
+        const thumbButtons = Array.from(document.querySelectorAll('[data-gallery-thumb]'));
+
+        if (galleryRoot && mainImage && thumbButtons.length) {
+            thumbButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    const url = button.getAttribute('data-image-url') || '';
+                    const alt = button.getAttribute('data-image-alt') || '';
+                    if (!url) return;
+
+                    mainImage.src = url;
+                    mainImage.alt = alt;
+
+                    thumbButtons.forEach((thumb) => {
+                        const isActive = thumb === button;
+                        thumb.classList.toggle('is-active', isActive);
+                        thumb.setAttribute('aria-current', isActive ? 'true' : 'false');
+                    });
+                });
+            });
+        }
+    })();
+
     (function () {
         const variantSelect = document.getElementById('variant_id');
         const quantityInput = document.getElementById('quantity');

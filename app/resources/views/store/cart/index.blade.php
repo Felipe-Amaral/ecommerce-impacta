@@ -68,6 +68,12 @@
                                         </div>
                                     @endif
 
+                                    @if(!empty($item['artwork_upload']['original_name']))
+                                        <div class="tiny muted" style="margin-top:8px;">
+                                            <strong>Arquivo enviado:</strong> {{ $item['artwork_upload']['original_name'] }}
+                                        </div>
+                                    @endif
+
                                     <div class="tiny muted" style="margin-top:8px;">
                                         Unitário: R$ {{ number_format((float) $item['unit_price'], 2, ',', '.') }}
                                     </div>

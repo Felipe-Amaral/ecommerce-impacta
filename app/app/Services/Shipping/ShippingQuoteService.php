@@ -137,6 +137,9 @@ class ShippingQuoteService
             'comunicacao-visual' => 900,
             'promocionais' => 350,
             'rotulos-e-etiquetas' => 250,
+            'brindes-personalizados' => 500,
+            'produtos-corporativos' => 420,
+            'outros-produtos' => 850,
             default => 180,
         };
     }

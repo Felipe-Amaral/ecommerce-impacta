@@ -4,9 +4,12 @@
 
     $scene = match ($categorySlug) {
         'cartoes-e-papelaria' => 'card',
-        'promocionais' => 'flyer',
         'comunicacao-visual' => 'banner',
         'rotulos-e-etiquetas' => 'labels',
+        'promocionais' => 'flyer',
+        'brindes-personalizados' => 'card',
+        'produtos-corporativos' => 'card',
+        'outros-produtos' => 'banner',
         default => 'card',
     };
 

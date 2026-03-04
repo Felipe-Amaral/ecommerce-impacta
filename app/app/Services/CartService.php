@@ -53,6 +53,7 @@ class CartService
         int $quantity,
         array $configuration = [],
         ?string $artworkNotes = null,
+        ?array $artworkUpload = null,
     ): string {
         $variant->loadMissing('product.images');
 
@@ -65,6 +66,7 @@ class CartService
             (string) $variant->id,
             json_encode($configuration, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
             $artworkNotes,
+            (string) ($artworkUpload['path'] ?? ''),
         ]));
 
         $lineId = substr($fingerprint, 0, 16);
@@ -88,6 +90,7 @@ class CartService
                 'line_total' => round($unitPrice * $quantity, 2),
                 'configuration' => $configuration,
                 'artwork_notes' => $artworkNotes !== '' ? $artworkNotes : null,
+                'artwork_upload' => $artworkUpload,
             ];
         }
 

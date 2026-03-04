@@ -3,9 +3,12 @@
     $price = $variant?->promotional_price ?: $variant?->price ?: $product->base_price;
     $accent = match($product->category?->slug) {
         'cartoes-e-papelaria' => '#c33a1d',
-        'promocionais' => '#0f5df5',
-        'comunicacao-visual' => '#0f766e',
         'rotulos-e-etiquetas' => '#d97706',
+        'comunicacao-visual' => '#0f766e',
+        'promocionais' => '#0f5df5',
+        'brindes-personalizados' => '#8b5cf6',
+        'produtos-corporativos' => '#0f4c81',
+        'outros-produtos' => '#6b7280',
         default => '#475569',
     };
 @endphp

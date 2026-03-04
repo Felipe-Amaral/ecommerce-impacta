@@ -22,6 +22,7 @@ class AddToCartRequest extends FormRequest
             ],
             'quantity' => ['required', 'integer', 'min:1', 'max:100000'],
             'artwork_notes' => ['nullable', 'string', 'max:2000'],
+            'artwork_file' => ['nullable', 'file', 'max:20480', 'mimes:pdf,ai,eps,psd,cdr,zip,jpg,jpeg,png'],
             'configuration' => ['nullable', 'array'],
             'configuration.*' => ['nullable', 'string', 'max:255'],
         ];

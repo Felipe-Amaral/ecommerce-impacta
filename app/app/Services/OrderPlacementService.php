@@ -67,7 +67,7 @@ class OrderPlacementService
             ]);
 
             foreach ((array) ($cartSummary['items'] ?? []) as $item) {
-                $order->items()->create([
+                $orderItem = $order->items()->create([
                     'product_id' => Arr::get($item, 'product_id'),
                     'product_variant_id' => Arr::get($item, 'variant_id'),
                     'product_name' => (string) Arr::get($item, 'product_name'),
@@ -81,6 +81,24 @@ class OrderPlacementService
                     'artwork_notes' => Arr::get($item, 'artwork_notes'),
                     'production_status' => 'pending_file',
                 ]);
+
+                $artworkPath = trim((string) Arr::get($item, 'artwork_upload.path', ''));
+                if ($artworkPath !== '') {
+                    $orderItem->artworkFiles()->create([
+                        'storage_disk' => (string) Arr::get($item, 'artwork_upload.disk', 'public'),
+                        'path' => $artworkPath,
+                        'original_name' => (string) Arr::get($item, 'artwork_upload.original_name', 'arquivo-arte'),
+                        'mime_type' => Arr::get($item, 'artwork_upload.mime_type'),
+                        'size_bytes' => Arr::get($item, 'artwork_upload.size_bytes'),
+                        'status' => 'uploaded',
+                        'review_notes' => null,
+                        'checklist' => null,
+                        'metadata' => [
+                            'source' => 'cart_upload',
+                        ],
+                        'uploaded_by_user_id' => $user?->id,
+                    ]);
+                }
             }
 
             $order->payments()->create([
