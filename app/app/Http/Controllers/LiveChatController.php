@@ -6,6 +6,7 @@ use App\Models\ContactMessage;
 use App\Models\LiveChatMessage;
 use App\Models\LiveChatSession;
 use App\Models\LiveVisitor;
+use App\Models\LiveVisitorPageView;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -83,7 +84,7 @@ class LiveChatController extends Controller
         $panelOpen = (bool) ($data['panel_open'] ?? false);
         $lastMessageId = (int) ($data['last_message_id'] ?? 0);
 
-        $this->touchVisitor($request, $token, $data, false);
+        $this->touchVisitor($request, $token, $data, false, false);
         $session = $this->resolveSessionForVisitor($token, isset($data['session_id']) ? (int) $data['session_id'] : null);
 
         $consultantsOnline = $this->activeConsultantsCount();
@@ -341,7 +342,13 @@ class LiveChatController extends Controller
     /**
      * @param  array<string, mixed>  $payload
      */
-    private function touchVisitor(Request $request, string $token, array $payload, bool $updatePageData = true): LiveVisitor
+    private function touchVisitor(
+        Request $request,
+        string $token,
+        array $payload,
+        bool $updatePageData = true,
+        bool $trackPageFlow = true
+    ): LiveVisitor
     {
         $visitor = LiveVisitor::query()->firstOrNew(['visitor_token' => $token]);
         $now = now();
@@ -387,7 +394,137 @@ class LiveChatController extends Controller
 
         $visitor->save();
 
+        if ($trackPageFlow) {
+            $this->trackPageView($visitor, $payload, $now);
+        }
+
         return $visitor->loadMissing('user:id,name,email,is_admin');
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function trackPageView(LiveVisitor $visitor, array $payload, \Illuminate\Support\Carbon $now): void
+    {
+        $metadata = (array) ($payload['metadata'] ?? []);
+        $sessionId = $this->stringOrNull($payload['session_id'] ?? $visitor->session_id, 120);
+        $currentPath = $this->stringOrNull($payload['current_path'] ?? $visitor->current_path, 600);
+        $currentUrl = $this->stringOrNull($payload['current_url'] ?? $visitor->current_url, 1200);
+
+        if (! $sessionId && ! $currentPath && ! $currentUrl) {
+            return;
+        }
+
+        $openPageViewQuery = LiveVisitorPageView::query()
+            ->where('visitor_token', $visitor->visitor_token)
+            ->whereNull('left_at')
+            ->latest('id');
+
+        if ($sessionId) {
+            $openPageViewQuery->where('session_id', $sessionId);
+        }
+
+        /** @var LiveVisitorPageView|null $openPageView */
+        $openPageView = $openPageViewQuery->first();
+
+        $exitType = $this->resolvePageExitType($metadata);
+        $isExitEvent = $exitType !== null;
+
+        if ($openPageView) {
+            $pathChanged = $currentPath !== null && $currentPath !== '' && $openPageView->path !== $currentPath;
+            $urlChanged = $currentUrl !== null && $currentUrl !== '' && $openPageView->url !== $currentUrl;
+            $hasNavigationChange = $pathChanged || $urlChanged;
+
+            if ($hasNavigationChange || $isExitEvent) {
+                $this->closePageView($openPageView, $isExitEvent ? $exitType : 'navigation', $now);
+
+                if ($isExitEvent) {
+                    return;
+                }
+
+                $this->createPageView($visitor, $payload, $sessionId, $currentPath, $currentUrl, $now);
+
+                return;
+            }
+
+            $openPageView->forceFill([
+                'page_title' => $this->stringOrNull($payload['page_title'] ?? $openPageView->page_title, 255),
+                'referrer_url' => $this->stringOrNull($payload['referrer_url'] ?? $openPageView->referrer_url, 1200),
+                'user_id' => $openPageView->user_id ?: $visitor->user_id,
+            ])->save();
+
+            return;
+        }
+
+        if ($isExitEvent) {
+            return;
+        }
+
+        $this->createPageView($visitor, $payload, $sessionId, $currentPath, $currentUrl, $now);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function createPageView(
+        LiveVisitor $visitor,
+        array $payload,
+        ?string $sessionId,
+        ?string $currentPath,
+        ?string $currentUrl,
+        \Illuminate\Support\Carbon $enteredAt
+    ): void {
+        if (! $currentPath && ! $currentUrl) {
+            return;
+        }
+
+        LiveVisitorPageView::query()->create([
+            'visitor_token' => $visitor->visitor_token,
+            'user_id' => $visitor->user_id,
+            'session_id' => $sessionId,
+            'path' => $currentPath,
+            'url' => $currentUrl,
+            'page_title' => $this->stringOrNull($payload['page_title'] ?? $visitor->page_title, 255),
+            'referrer_url' => $this->stringOrNull($payload['referrer_url'] ?? $visitor->referrer_url, 1200),
+            'entered_at' => $enteredAt,
+            'left_at' => null,
+            'duration_seconds' => null,
+            'exit_type' => null,
+            'metadata' => [
+                'origin' => 'visitor_tracking',
+            ],
+        ]);
+    }
+
+    private function closePageView(LiveVisitorPageView $pageView, string $exitType, \Illuminate\Support\Carbon $leftAt): void
+    {
+        $enteredAt = $pageView->entered_at ?: $pageView->created_at ?: $leftAt;
+        $duration = max(1, $leftAt->diffInSeconds($enteredAt));
+
+        $pageView->forceFill([
+            'left_at' => $leftAt,
+            'duration_seconds' => $duration,
+            'exit_type' => $this->stringOrNull($exitType, 30) ?: 'navigation',
+        ])->save();
+    }
+
+    /**
+     * @param  array<string, mixed>  $metadata
+     */
+    private function resolvePageExitType(array $metadata): ?string
+    {
+        if (! (bool) ($metadata['exit_event'] ?? false)) {
+            return null;
+        }
+
+        $reason = $this->stringOrNull($metadata['exit_reason'] ?? null, 30);
+        if (! $reason) {
+            return 'pagehide';
+        }
+
+        $allowed = ['pagehide', 'beforeunload', 'navigation', 'inactivity', 'manual'];
+
+        return in_array($reason, $allowed, true) ? $reason : 'pagehide';
     }
 
     private function activeConsultantsCount(): int

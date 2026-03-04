@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LiveChatMessage;
 use App\Models\LiveChatSession;
 use App\Models\LiveVisitor;
+use App\Models\LiveVisitorPageView;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -17,6 +18,7 @@ class LiveChatMonitorController extends Controller
     public function index(): View
     {
         $this->assertAdmin();
+        $this->closeInactivePageViews();
 
         $visitors = $this->activeVisitorsPayload();
         $sessions = $this->openSessionsPayload();
@@ -37,6 +39,7 @@ class LiveChatMonitorController extends Controller
     public function snapshot(): JsonResponse
     {
         $this->assertAdmin();
+        $this->closeInactivePageViews();
 
         $visitors = $this->activeVisitorsPayload();
         $sessions = $this->openSessionsPayload();
@@ -143,12 +146,21 @@ class LiveChatMonitorController extends Controller
             ->take(150)
             ->get();
 
-        return $visitors
+        $activeVisitors = $visitors
             ->filter(fn (LiveVisitor $visitor): bool => ! (bool) ($visitor->user?->is_admin))
-            ->map(function (LiveVisitor $visitor): array {
+            ->values();
+
+        $journeysByToken = $this->journeysByVisitorToken($activeVisitors);
+
+        return $activeVisitors
+            ->map(function (LiveVisitor $visitor) use ($journeysByToken): array {
                 $metadata = is_array($visitor->metadata) ? $visitor->metadata : [];
                 $pageStartedAt = (int) ($metadata['page_started_at'] ?? 0);
                 $pageSeconds = $pageStartedAt > 0 ? max(0, now()->timestamp - $pageStartedAt) : null;
+                $journey = $journeysByToken[$visitor->visitor_token] ?? [];
+                $lastExit = collect($journey)
+                    ->reverse()
+                    ->first(fn (array $step): bool => ! (bool) ($step['is_current'] ?? false));
 
                 $displayName = $visitor->user?->name
                     ?: trim((string) ($metadata['visitor_name'] ?? ''))
@@ -183,6 +195,10 @@ class LiveChatMonitorController extends Controller
                     'session_seconds' => $visitor->first_seen_at ? now()->diffInSeconds($visitor->first_seen_at) : null,
                     'first_seen_at' => optional($visitor->first_seen_at)->toIso8601String(),
                     'last_seen_at' => optional($visitor->last_seen_at)->toIso8601String(),
+                    'journey' => $journey,
+                    'last_exit_path' => $lastExit['path'] ?? null,
+                    'last_exit_at' => $lastExit['left_at'] ?? null,
+                    'last_exit_type' => $lastExit['exit_type'] ?? null,
                 ];
             })
             ->values()
@@ -287,6 +303,117 @@ class LiveChatMonitorController extends Controller
             'author_name' => $message->user?->name,
             'created_at' => optional($message->created_at)->toIso8601String(),
         ];
+    }
+
+    /**
+     * @param  Collection<int, LiveVisitor>  $visitors
+     * @return array<string, array<int, array<string, mixed>>>
+     */
+    private function journeysByVisitorToken(Collection $visitors): array
+    {
+        $tokens = $visitors
+            ->pluck('visitor_token')
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($tokens->isEmpty()) {
+            return [];
+        }
+
+        $viewsByToken = LiveVisitorPageView::query()
+            ->whereIn('visitor_token', $tokens->all())
+            ->where('entered_at', '>=', now()->subDays(3))
+            ->orderByDesc('id')
+            ->take(4500)
+            ->get()
+            ->groupBy('visitor_token');
+
+        $journeys = [];
+
+        foreach ($visitors as $visitor) {
+            $views = $viewsByToken->get($visitor->visitor_token, collect());
+
+            if ($visitor->session_id) {
+                $sessionViews = $views->filter(fn (LiveVisitorPageView $view): bool => $view->session_id === $visitor->session_id);
+                if ($sessionViews->isNotEmpty()) {
+                    $views = $sessionViews;
+                }
+            }
+
+            $sorted = $views->sortBy('entered_at')->values();
+            if ($sorted->count() > 14) {
+                $sorted = $sorted->slice($sorted->count() - 14)->values();
+            }
+
+            $journeys[$visitor->visitor_token] = $sorted
+                ->map(function (LiveVisitorPageView $view): array {
+                    $enteredAt = $view->entered_at;
+                    $leftAt = $view->left_at;
+                    $durationSeconds = $leftAt
+                        ? max(1, (int) ($view->duration_seconds ?? max(1, $leftAt->diffInSeconds($enteredAt ?: $leftAt))))
+                        : ($enteredAt ? now()->diffInSeconds($enteredAt) : null);
+
+                    $path = $view->path;
+                    if (! $path && $view->url) {
+                        $urlPath = parse_url($view->url, PHP_URL_PATH);
+                        $path = is_string($urlPath) && $urlPath !== '' ? $urlPath : '/';
+                    }
+
+                    return [
+                        'path' => $path ?: '/',
+                        'url' => $view->url,
+                        'page_title' => $view->page_title,
+                        'entered_at' => optional($enteredAt)->toIso8601String(),
+                        'left_at' => optional($leftAt)->toIso8601String(),
+                        'duration_seconds' => $durationSeconds,
+                        'exit_type' => $leftAt ? ($view->exit_type ?: 'navigation') : null,
+                        'is_current' => ! (bool) $leftAt,
+                    ];
+                })
+                ->values()
+                ->all();
+        }
+
+        return $journeys;
+    }
+
+    private function closeInactivePageViews(): void
+    {
+        $staleVisitors = LiveVisitor::query()
+            ->whereNotNull('last_seen_at')
+            ->where('last_seen_at', '<', now()->subSeconds(140))
+            ->select(['visitor_token', 'session_id', 'last_seen_at'])
+            ->take(600)
+            ->get();
+
+        foreach ($staleVisitors as $staleVisitor) {
+            if (! $staleVisitor->session_id) {
+                continue;
+            }
+
+            /** @var LiveVisitorPageView|null $openView */
+            $openView = LiveVisitorPageView::query()
+                ->where('visitor_token', $staleVisitor->visitor_token)
+                ->where('session_id', $staleVisitor->session_id)
+                ->whereNull('left_at')
+                ->latest('id')
+                ->first();
+
+            if (! $openView) {
+                continue;
+            }
+
+            $leftAt = $staleVisitor->last_seen_at ?: now();
+            $enteredAt = $openView->entered_at ?: $openView->created_at ?: $leftAt;
+            $durationSeconds = max(1, $leftAt->diffInSeconds($enteredAt));
+
+            $openView->forceFill([
+                'left_at' => $leftAt,
+                'duration_seconds' => $durationSeconds,
+                'exit_type' => 'inactivity',
+            ])->save();
+        }
     }
 
     private function assertAdmin(): void

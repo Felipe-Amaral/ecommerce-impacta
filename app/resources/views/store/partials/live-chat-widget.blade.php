@@ -1105,6 +1105,47 @@
                 }
             };
 
+            let exitSignalSent = false;
+            let exitSignalAtMs = 0;
+
+            const sendExitSignal = (reason = 'pagehide') => {
+                const nowMs = Date.now();
+                if (exitSignalSent || (nowMs - exitSignalAtMs) < 900) return;
+                exitSignalSent = true;
+                exitSignalAtMs = nowMs;
+
+                const payload = {
+                    ...basePayload(),
+                    current_url: window.location.href,
+                    current_path: window.location.pathname + window.location.search,
+                    session_id: state.browserSessionId,
+                    panel_open: false,
+                    metadata: {
+                        ...basePayload().metadata,
+                        exit_event: true,
+                        exit_reason: reason,
+                    },
+                };
+
+                fetch(heartbeatUrl, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    keepalive: true,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify(payload),
+                }).catch(() => {
+                    // ignore unload failures
+                });
+            };
+
+            window.addEventListener('pagehide', () => sendExitSignal('pagehide'));
+            window.addEventListener('beforeunload', () => sendExitSignal('beforeunload'));
+
             if (trackOnly) {
                 runHeartbeatSafely();
                 window.setInterval(runHeartbeatSafely, 15000);

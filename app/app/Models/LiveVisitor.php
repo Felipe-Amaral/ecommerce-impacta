@@ -55,4 +55,9 @@ class LiveVisitor extends Model
     {
         return $this->hasMany(LiveChatSession::class, 'visitor_token', 'visitor_token');
     }
+
+    public function pageViews(): HasMany
+    {
+        return $this->hasMany(LiveVisitorPageView::class, 'visitor_token', 'visitor_token');
+    }
 }

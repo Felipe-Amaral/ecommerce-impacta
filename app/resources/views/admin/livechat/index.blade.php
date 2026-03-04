@@ -125,6 +125,42 @@
             word-break: break-word;
         }
 
+        .chat-admin-journey {
+            margin-top: 3px;
+            padding-top: 7px;
+            border-top: 1px dashed rgba(22,20,19,.12);
+            display: grid;
+            gap: 4px;
+        }
+
+        .chat-admin-journey-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: baseline;
+            font-size: .68rem;
+            color: #5f564c;
+            line-height: 1.35;
+        }
+
+        .chat-admin-journey-item.current {
+            color: #0f5df5;
+            font-weight: 700;
+        }
+
+        .chat-admin-journey-path {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chat-admin-journey-meta {
+            white-space: nowrap;
+            color: #6d6358;
+            font-variant-numeric: tabular-nums;
+        }
+
         .chat-admin-pill {
             border-radius: 999px;
             border: 1px solid rgba(22,20,19,.08);
@@ -438,6 +474,30 @@
             return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         };
 
+        const formatDateTime = (iso) => {
+            if (!iso) return '--';
+            const date = new Date(iso);
+            if (Number.isNaN(date.getTime())) return '--';
+            return date.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+        };
+
+        const exitTypeLabel = (exitType) => {
+            const map = {
+                navigation: 'navegou',
+                pagehide: 'saiu da aba',
+                beforeunload: 'fechou/recarregou',
+                inactivity: 'inatividade',
+                manual: 'manual',
+            };
+
+            return map[exitType] || exitType || 'navegacao';
+        };
+
         const createMetaPill = (label) => {
             const span = document.createElement('span');
             span.className = 'chat-admin-pill';
@@ -514,11 +574,50 @@
                     visitor.platform ? `Plataforma: ${visitor.platform}` : null,
                 ].filter(Boolean).join(' • ') || 'Dispositivo: --';
 
+                const journey = Array.isArray(visitor.journey) ? visitor.journey : [];
+                const journeyWrap = document.createElement('div');
+                journeyWrap.className = 'chat-admin-journey';
+
+                if (!journey.length) {
+                    const emptyJourney = document.createElement('div');
+                    emptyJourney.className = 'tiny';
+                    emptyJourney.textContent = 'Fluxo ainda em coleta.';
+                    journeyWrap.appendChild(emptyJourney);
+                } else {
+                    journey.forEach((step) => {
+                        const rowStep = document.createElement('div');
+                        rowStep.className = `chat-admin-journey-item ${step.is_current ? 'current' : ''}`;
+
+                        const path = document.createElement('span');
+                        path.className = 'chat-admin-journey-path';
+                        path.textContent = step.path || '/';
+                        path.title = step.url || step.path || '/';
+
+                        const metaStep = document.createElement('span');
+                        metaStep.className = 'chat-admin-journey-meta';
+                        metaStep.textContent = step.is_current
+                            ? `agora • ${formatDuration(step.duration_seconds)}`
+                            : `${formatTime(step.entered_at)}-${formatTime(step.left_at)} • ${formatDuration(step.duration_seconds)} • ${exitTypeLabel(step.exit_type)}`;
+
+                        rowStep.appendChild(path);
+                        rowStep.appendChild(metaStep);
+                        journeyWrap.appendChild(rowStep);
+                    });
+                }
+
+                if (visitor.last_exit_path && visitor.last_exit_at) {
+                    const exitSummary = document.createElement('div');
+                    exitSummary.className = 'tiny';
+                    exitSummary.textContent = `Ultima saida do site: ${visitor.last_exit_path} em ${formatDateTime(visitor.last_exit_at)} (${exitTypeLabel(visitor.last_exit_type)})`;
+                    journeyWrap.appendChild(exitSummary);
+                }
+
                 row.appendChild(head);
                 row.appendChild(meta);
                 row.appendChild(url);
                 row.appendChild(ref);
                 row.appendChild(device);
+                row.appendChild(journeyWrap);
                 visitorsList.appendChild(row);
             });
         };

@@ -101,4 +101,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(LiveChatMessage::class);
     }
+
+    public function liveVisitorPageViews(): HasMany
+    {
+        return $this->hasMany(LiveVisitorPageView::class);
+    }
 }
