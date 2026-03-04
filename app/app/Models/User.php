@@ -71,4 +71,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(BlogPost::class, 'author_id');
     }
+
+    public function contactMessages(): HasMany
+    {
+        return $this->hasMany(ContactMessage::class);
+    }
 }

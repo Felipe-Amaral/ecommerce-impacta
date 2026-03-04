@@ -104,6 +104,7 @@
                     <a href="{{ route('admin.orders.index') }}" class="btn btn-secondary btn-sm">Ver todos os pedidos</a>
                     <a href="{{ route('admin.catalog.index') }}" class="btn btn-secondary btn-sm">Cadastros</a>
                     <a href="{{ route('admin.blog.index') }}" class="btn btn-secondary btn-sm">Blog</a>
+                    <a href="{{ route('admin.contacts.index') }}" class="btn btn-secondary btn-sm">Contatos</a>
                 </div>
             </div>
 
@@ -197,6 +198,24 @@
                         @endforeach
                     </ul>
                 @endif
+            </section>
+
+            <section class="card card-pad stack">
+                <div class="section-head">
+                    <div class="copy">
+                        <span class="section-kicker">Contato</span>
+                        <h3>Inbox comercial</h3>
+                    </div>
+                </div>
+                <div class="summary-row">
+                    <span class="muted">Mensagens não lidas</span>
+                    <strong>{{ $unreadContacts }}</strong>
+                </div>
+                <div class="summary-row">
+                    <span class="muted">Mensagens de hoje</span>
+                    <strong>{{ $todayContacts }}</strong>
+                </div>
+                <a href="{{ route('admin.contacts.index') }}" class="btn btn-secondary btn-sm">Abrir caixa de entrada</a>
             </section>
         </aside>
     </section>

@@ -6651,6 +6651,10 @@
                                     @include('partials.nav-icon', ['name' => 'orders', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Pedidos</span>
                                 </a>
+                                <a class="nav-link {{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}" href="{{ route('admin.contacts.index') }}">
+                                    @include('partials.nav-icon', ['name' => 'contact', 'class' => 'nav-icon'])
+                                    <span class="nav-link-label">Contatos</span>
+                                </a>
                                 <a class="nav-link {{ request()->routeIs('admin.catalog.*') ? 'active' : '' }}" href="{{ route('admin.catalog.index') }}">
                                     @include('partials.nav-icon', ['name' => 'cadastros', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Cadastros</span>
@@ -6672,10 +6676,6 @@
                                     @include('partials.nav-icon', ['name' => 'catalog', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Catálogo</span>
                                 </a>
-                                <a class="nav-link {{ request()->routeIs('pages.about') ? 'active' : '' }}" href="{{ route('pages.about') }}">
-                                    @include('partials.nav-icon', ['name' => 'about', 'class' => 'nav-icon'])
-                                    <span class="nav-link-label">Quem somos</span>
-                                </a>
                                 <a class="nav-link {{ request()->routeIs('pages.services') ? 'active' : '' }}" href="{{ route('pages.services') }}">
                                     @include('partials.nav-icon', ['name' => 'services', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Serviços</span>
@@ -6696,6 +6696,10 @@
                                     @include('partials.nav-icon', ['name' => 'contact', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Contato</span>
                                 </a>
+                                <a class="nav-link {{ request()->routeIs('pages.about') ? 'active' : '' }}" href="{{ route('pages.about') }}">
+                                    @include('partials.nav-icon', ['name' => 'about', 'class' => 'nav-icon'])
+                                    <span class="nav-link-label">Quem somos</span>
+                                </a>
                                 <a class="nav-link nav-link-cart {{ request()->routeIs('cart.*') ? 'active' : '' }}" href="{{ route('cart.index') }}">
                                     @include('partials.nav-icon', ['name' => 'cart', 'class' => 'nav-icon'])
                                     <span class="nav-link-label">Carrinho</span>
@@ -6712,10 +6716,6 @@
                             <a class="nav-link {{ request()->routeIs('catalog.*') ? 'active' : '' }}" href="{{ route('catalog.index') }}">
                                 @include('partials.nav-icon', ['name' => 'catalog', 'class' => 'nav-icon'])
                                 <span class="nav-link-label">Catálogo</span>
-                            </a>
-                            <a class="nav-link {{ request()->routeIs('pages.about') ? 'active' : '' }}" href="{{ route('pages.about') }}">
-                                @include('partials.nav-icon', ['name' => 'about', 'class' => 'nav-icon'])
-                                <span class="nav-link-label">Quem somos</span>
                             </a>
                             <a class="nav-link {{ request()->routeIs('pages.services') ? 'active' : '' }}" href="{{ route('pages.services') }}">
                                 @include('partials.nav-icon', ['name' => 'services', 'class' => 'nav-icon'])
@@ -6736,6 +6736,10 @@
                             <a class="nav-link {{ request()->routeIs('pages.contact') ? 'active' : '' }}" href="{{ route('pages.contact') }}">
                                 @include('partials.nav-icon', ['name' => 'contact', 'class' => 'nav-icon'])
                                 <span class="nav-link-label">Contato</span>
+                            </a>
+                            <a class="nav-link {{ request()->routeIs('pages.about') ? 'active' : '' }}" href="{{ route('pages.about') }}">
+                                @include('partials.nav-icon', ['name' => 'about', 'class' => 'nav-icon'])
+                                <span class="nav-link-label">Quem somos</span>
                             </a>
                             <a class="nav-link nav-link-cart {{ request()->routeIs('cart.*') ? 'active' : '' }}" href="{{ route('cart.index') }}">
                                 @include('partials.nav-icon', ['name' => 'cart', 'class' => 'nav-icon'])
@@ -6897,6 +6901,10 @@
                 <a href="{{ route('admin.orders.index') }}" class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                     @include('partials.nav-icon', ['name' => 'orders', 'class' => 'nav-icon'])
                     <span class="nav-link-label">Pedidos</span>
+                </a>
+                <a href="{{ route('admin.contacts.index') }}" class="{{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}">
+                    @include('partials.nav-icon', ['name' => 'contact', 'class' => 'nav-icon'])
+                    <span class="nav-link-label">Contatos</span>
                 </a>
                 <a href="{{ route('admin.catalog.index') }}" class="{{ request()->routeIs('admin.catalog.*') ? 'active' : '' }}">
                     @include('partials.nav-icon', ['name' => 'cadastros', 'class' => 'nav-icon'])

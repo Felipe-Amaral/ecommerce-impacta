@@ -4,12 +4,14 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CheckoutShippingQuoteController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\Account\OrderController as AccountOrderController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\BlogCategoryController as AdminBlogCategoryController;
+use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
 use App\Http\Controllers\Admin\BlogTagController as AdminBlogTagController;
 use App\Http\Controllers\Admin\HomeBannerController as AdminHomeBannerController;
@@ -51,6 +53,10 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/painel/pedidos', [AdminOrderController::class, 'index'])->name('admin.orders.index');
     Route::get('/painel/pedidos/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
     Route::patch('/painel/pedidos/{order}/workflow', [AdminOrderController::class, 'updateWorkflow'])->name('admin.orders.workflow.update');
+    Route::get('/painel/contatos', [AdminContactMessageController::class, 'index'])->name('admin.contacts.index');
+    Route::get('/painel/contatos/{contactMessage}', [AdminContactMessageController::class, 'show'])->name('admin.contacts.show');
+    Route::patch('/painel/contatos/{contactMessage}/status', [AdminContactMessageController::class, 'updateStatus'])->name('admin.contacts.status.update');
+    Route::patch('/painel/contatos/{contactMessage}/lido', [AdminContactMessageController::class, 'markRead'])->name('admin.contacts.read');
     Route::patch('/painel/arquivos/{artworkFile}/revisao', ArtworkFileReviewController::class)->name('admin.artwork.review');
 
     Route::get('/painel/cadastros', AdminCatalogController::class)->name('admin.catalog.index');
@@ -107,7 +113,8 @@ Route::get('/blog/categoria/{blogCategory:slug}', [BlogController::class, 'categ
 Route::get('/blog/tag/{blogTag:slug}', [BlogController::class, 'tag'])->name('blog.tag');
 Route::get('/blog/{blogPost:slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::view('/orcamento', 'store.pages.blank', ['pageTitle' => 'Orçamento'])->name('pages.quote');
-Route::view('/contato', 'store.pages.blank', ['pageTitle' => 'Contato'])->name('pages.contact');
+Route::get('/contato', [ContactController::class, 'show'])->name('pages.contact');
+Route::post('/contato', [ContactController::class, 'store'])->name('pages.contact.store');
 
 Route::get('/catalogo', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/catalogo/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
