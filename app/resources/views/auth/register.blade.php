@@ -43,7 +43,7 @@
 
                 @include('auth.partials.social-buttons')
 
-                <form method="POST" action="{{ route('register.store') }}" class="stack">
+                <form method="POST" action="{{ route('register.store') }}" class="stack" autocomplete="off">
                     @csrf
 
                     <div class="field">
@@ -58,17 +58,51 @@
 
                     <div class="field">
                         <label for="register_phone">Telefone / WhatsApp (opcional)</label>
-                        <input id="register_phone" name="phone" type="text" class="input" value="{{ old('phone') }}" autocomplete="tel" />
+                        <input
+                            id="register_phone"
+                            name="phone"
+                            type="text"
+                            class="input"
+                            value="{{ old('phone') }}"
+                            autocomplete="tel"
+                            inputmode="numeric"
+                            placeholder="(11) 99999-9999"
+                            maxlength="15"
+                        />
                     </div>
 
                     <div class="field">
                         <label for="register_password">Senha</label>
-                        <input id="register_password" name="password" type="password" class="input" required autocomplete="new-password" />
+                        <input
+                            id="register_password"
+                            name="password"
+                            type="password"
+                            class="input"
+                            required
+                            autocomplete="off"
+                            autocapitalize="none"
+                            autocorrect="off"
+                            spellcheck="false"
+                            data-lpignore="true"
+                            data-1p-ignore="true"
+                        />
                     </div>
 
                     <div class="field">
                         <label for="register_password_confirmation">Confirmar senha</label>
-                        <input id="register_password_confirmation" name="password_confirmation" type="password" class="input" required autocomplete="new-password" />
+                        <input
+                            id="register_password_confirmation"
+                            name="password_confirmation"
+                            type="password"
+                            class="input"
+                            required
+                            autocomplete="off"
+                            autocapitalize="none"
+                            autocorrect="off"
+                            spellcheck="false"
+                            data-lpignore="true"
+                            data-1p-ignore="true"
+                        />
                     </div>
 
                     <button type="submit" class="btn btn-primary">Criar conta</button>
@@ -78,3 +112,45 @@
         </aside>
     </section>
 @endsection
+
+@push('scripts')
+    <script>
+        (function () {
+            const phoneInput = document.getElementById('register_phone');
+            const passwordInput = document.getElementById('register_password');
+            const passwordConfirmationInput = document.getElementById('register_password_confirmation');
+            if (!phoneInput) return;
+
+            const applyMask = (value) => {
+                const digits = String(value || '').replace(/\D/g, '').slice(0, 11);
+                if (digits.length <= 2) return digits;
+                if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+                if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+                return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+            };
+
+            const sync = () => {
+                phoneInput.value = applyMask(phoneInput.value);
+            };
+
+            sync();
+            phoneInput.addEventListener('input', sync);
+            phoneInput.addEventListener('blur', sync);
+
+            const unlockField = (field) => {
+                if (!field) return;
+                if (field.readOnly) {
+                    field.readOnly = false;
+                }
+            };
+
+            [passwordInput, passwordConfirmationInput].forEach((field) => {
+                if (!field) return;
+                field.readOnly = true;
+                field.addEventListener('focus', () => unlockField(field), { once: true });
+                field.addEventListener('pointerdown', () => unlockField(field), { once: true });
+                field.addEventListener('keydown', () => unlockField(field), { once: true });
+            });
+        })();
+    </script>
+@endpush

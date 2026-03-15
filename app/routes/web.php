@@ -153,6 +153,7 @@ Route::get('/carrinho', [CartController::class, 'index'])->name('cart.index');
 Route::post('/carrinho/itens', [CartController::class, 'store'])->name('cart.items.store');
 Route::patch('/carrinho/itens/{lineId}', [CartController::class, 'update'])->name('cart.items.update');
 Route::delete('/carrinho/itens/{lineId}', [CartController::class, 'destroy'])->name('cart.items.destroy');
+Route::delete('/carrinho', [CartController::class, 'clear'])->name('cart.clear');
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');

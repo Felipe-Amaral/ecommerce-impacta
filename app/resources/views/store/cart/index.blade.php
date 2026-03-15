@@ -119,6 +119,14 @@
                 <div class="ribbon-note">Próximo passo: informe cobrança, entrega e forma de pagamento no checkout.</div>
 
                 <a href="{{ route('checkout.index') }}" class="btn btn-primary">Ir para checkout</a>
+
+                <form method="POST" action="{{ route('cart.clear') }}">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-secondary" type="submit" onclick="return confirm('Deseja limpar todo o carrinho?');">
+                        Limpar carrinho
+                    </button>
+                </form>
             </aside>
         </section>
     @endif

@@ -68,6 +68,32 @@ class CartController extends Controller
             ->with('success', 'Item removido do carrinho.');
     }
 
+    public function clear(): RedirectResponse
+    {
+        $items = (array) ($this->cartService->summary()['items'] ?? []);
+
+        foreach ($items as $item) {
+            $upload = (array) ($item['artwork_upload'] ?? []);
+            $path = (string) ($upload['path'] ?? '');
+            if ($path === '') {
+                continue;
+            }
+
+            $disk = (string) ($upload['disk'] ?? 'public');
+            try {
+                Storage::disk($disk)->delete($path);
+            } catch (\Throwable) {
+                // Keep flow resilient; session cleanup is the priority.
+            }
+        }
+
+        $this->cartService->clear();
+
+        return redirect()
+            ->route('cart.index')
+            ->with('success', 'Carrinho limpo com sucesso.');
+    }
+
     /**
      * @return array<string, mixed>|null
      */

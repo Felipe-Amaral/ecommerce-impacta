@@ -266,6 +266,13 @@
                 <form method="POST" action="{{ route('cart.items.store') }}" class="stack" id="product-config-form" enctype="multipart/form-data">
                     @csrf
 
+                    @if($errors->hasAny(['variant_id', 'quantity', 'artwork_file', 'artwork_notes', 'configuration', 'configuration.*']))
+                        <div class="glass-panel stack" style="gap:6px; border-color: rgba(143,34,28,.22); background: rgba(143,34,28,.08);">
+                            <strong style="font-size:.84rem; color:#8f221c;">Não foi possível adicionar ao carrinho.</strong>
+                            <span class="tiny" style="color:#8f221c;">{{ $errors->first() }}</span>
+                        </div>
+                    @endif
+
                     <div class="field">
                         <label for="variant_id">Variação</label>
                         <select id="variant_id" name="variant_id" class="select" required>
@@ -275,16 +282,31 @@
                                     data-variant-name="{{ $variant->name }}"
                                     data-price="{{ (float) ($variant->promotional_price ?: $variant->price) }}"
                                     data-production-days="{{ (int) ($variant->production_days ?: $product->lead_time_days) }}"
+                                    @selected((string) old('variant_id', (string) ($firstVariant?->id)) === (string) $variant->id)
                                 >
                                     {{ $variant->name }} - R$ {{ number_format((float) ($variant->promotional_price ?: $variant->price), 2, ',', '.') }}
                                 </option>
                             @endforeach
                         </select>
+                        @error('variant_id')
+                            <span class="tiny" style="color:#8f221c;">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="field">
                         <label for="quantity">Quantidade</label>
-                        <input id="quantity" name="quantity" class="input" type="number" min="{{ $product->min_quantity }}" value="{{ $initialQuantity }}" required />
+                        <input
+                            id="quantity"
+                            name="quantity"
+                            class="input"
+                            type="number"
+                            min="{{ $product->min_quantity }}"
+                            value="{{ old('quantity', $initialQuantity) }}"
+                            required
+                        />
+                        @error('quantity')
+                            <span class="tiny" style="color:#8f221c;">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="field">

@@ -80,7 +80,7 @@
 
                 @include('auth.partials.social-buttons')
 
-                <form method="POST" action="{{ route('login.store') }}" class="stack">
+                <form method="POST" action="{{ route('login.store') }}" class="stack" autocomplete="off">
                     @csrf
 
                     <div class="field">
@@ -90,7 +90,19 @@
 
                     <div class="field">
                         <label for="password">Senha</label>
-                        <input id="password" name="password" type="password" class="input" required autocomplete="current-password" />
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            class="input"
+                            required
+                            autocomplete="off"
+                            autocapitalize="none"
+                            autocorrect="off"
+                            spellcheck="false"
+                            data-lpignore="true"
+                            data-1p-ignore="true"
+                        />
                     </div>
 
                     <label class="radio-card" for="remember">
@@ -130,6 +142,17 @@
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         if (!emailInput || !passwordInput) return;
+
+        const unlockPasswordField = () => {
+            if (passwordInput.readOnly) {
+                passwordInput.readOnly = false;
+            }
+        };
+
+        passwordInput.readOnly = true;
+        passwordInput.addEventListener('focus', unlockPasswordField, { once: true });
+        passwordInput.addEventListener('pointerdown', unlockPasswordField, { once: true });
+        passwordInput.addEventListener('keydown', unlockPasswordField, { once: true });
 
         const users = {
             admin: 'admin@graficaimpacta.local',

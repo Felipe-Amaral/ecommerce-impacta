@@ -1,11 +1,13 @@
 @php
     $chatUser = auth()->user();
-    $trackOnly = (bool) ($chatUser?->is_admin);
+    $disableFloatingChat = request()->routeIs('catalog.show');
+    $trackOnly = $disableFloatingChat || (bool) ($chatUser?->is_admin);
 @endphp
 
 <div
     class="livechat-floating{{ $trackOnly ? ' is-track-only' : '' }}"
     data-livechat-widget
+    data-floating-disabled="{{ $disableFloatingChat ? '1' : '0' }}"
     data-track-only="{{ $trackOnly ? '1' : '0' }}"
     data-heartbeat-url="{{ route('livechat.heartbeat') }}"
     data-poll-url="{{ route('livechat.poll') }}"
@@ -514,18 +516,32 @@
         @media (max-width: 760px) {
             .livechat-floating {
                 --livechat-right: 8px;
-                --livechat-bottom: calc(env(safe-area-inset-bottom, 0px) + 82px);
-                width: calc(100vw - 16px);
+                --livechat-bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
+                width: auto;
+                max-width: calc(100vw - 16px);
             }
 
             .livechat-panel,
-            .livechat-launcher,
             .livechat-invite {
                 width: calc(100vw - 16px);
             }
 
+            .livechat-launcher {
+                width: min(260px, calc(100vw - 16px));
+            }
+
             .livechat-thread {
                 max-height: min(46vh, 320px);
+            }
+        }
+
+        body.has-livechat-widget .flash-stack {
+            bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+        }
+
+        @media (max-width: 680px) {
+            body.has-livechat-widget .flash-stack {
+                bottom: calc(152px + env(safe-area-inset-bottom, 0px));
             }
         }
     </style>
@@ -538,6 +554,16 @@
             if (!root) return;
 
             const trackOnly = root.getAttribute('data-track-only') === '1';
+            const floatingDisabled = root.getAttribute('data-floating-disabled') === '1';
+            if (floatingDisabled) {
+                document.body.classList.remove('has-livechat-widget');
+                return;
+            }
+            if (!trackOnly) {
+                document.body.classList.add('has-livechat-widget');
+            } else {
+                document.body.classList.remove('has-livechat-widget');
+            }
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
             const heartbeatUrl = root.getAttribute('data-heartbeat-url') || '';
