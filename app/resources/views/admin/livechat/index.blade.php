@@ -7,6 +7,7 @@
     $bootstrapPayload = [
         'visitors' => $initialVisitors,
         'sessions' => $initialSessions,
+        'tracking' => $initialTracking,
         'stats' => $stats,
         'consultants_online' => $consultantsOnline,
     ];
@@ -298,6 +299,142 @@
             font-size: .88rem;
         }
 
+        .tracking-admin-wrap {
+            margin: 8px 0 14px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .tracking-admin-head {
+            border-radius: 18px;
+            border: 1px solid rgba(22,20,19,.08);
+            background:
+                radial-gradient(circle at 90% 0%, rgba(31,94,255,.11), transparent 44%),
+                linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.9));
+            box-shadow: 0 12px 20px rgba(12,10,8,.06);
+            padding: 12px 14px;
+            display: grid;
+            gap: 4px;
+        }
+
+        .tracking-admin-head h2 {
+            margin: 0;
+            font-size: 1.04rem;
+            color: #1f1b17;
+            line-height: 1.2;
+        }
+
+        .tracking-admin-head p {
+            margin: 0;
+            color: #645b51;
+            font-size: .79rem;
+            line-height: 1.45;
+        }
+
+        .tracking-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .tracking-summary-card {
+            border-radius: 14px;
+            border: 1px solid rgba(22,20,19,.08);
+            background: rgba(255,255,255,.9);
+            padding: 10px 12px;
+            display: grid;
+            gap: 3px;
+        }
+
+        .tracking-summary-card strong {
+            font-size: 1.28rem;
+            color: #1f1b17;
+            line-height: 1;
+        }
+
+        .tracking-summary-card span {
+            font-size: .71rem;
+            color: #6d6358;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            font-weight: 700;
+        }
+
+        .tracking-charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .tracking-card {
+            border-radius: 18px;
+            border: 1px solid rgba(22,20,19,.08);
+            background:
+                radial-gradient(circle at 95% 0%, rgba(198,161,74,.12), transparent 47%),
+                linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.88));
+            box-shadow: 0 12px 20px rgba(12,10,8,.06);
+            padding: 12px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .tracking-card-wide {
+            grid-column: 1 / -1;
+        }
+
+        .tracking-card h3 {
+            margin: 0;
+            font-size: .93rem;
+            color: #1f1b17;
+            line-height: 1.2;
+        }
+
+        .tracking-canvas-wrap {
+            position: relative;
+            min-height: 248px;
+        }
+
+        .tracking-active-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 7px;
+        }
+
+        .tracking-active-list li {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+            border-radius: 10px;
+            border: 1px solid rgba(22,20,19,.08);
+            background: rgba(255,255,255,.88);
+            padding: 7px 9px;
+            font-size: .75rem;
+            color: #5f564c;
+        }
+
+        .tracking-active-list .path {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #1f1b17;
+            font-weight: 700;
+        }
+
+        .tracking-active-list .count {
+            border-radius: 999px;
+            border: 1px solid rgba(22,20,19,.09);
+            background: rgba(255,255,255,.86);
+            padding: 3px 7px;
+            font-size: .68rem;
+            color: #5f564c;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
         @media (max-width: 1100px) {
             .chat-admin-grid {
                 grid-template-columns: 1fr;
@@ -311,6 +448,22 @@
             .chat-admin-sessions {
                 border-right: 0;
                 border-bottom: 1px solid rgba(22,20,19,.07);
+            }
+
+            .tracking-summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .tracking-charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tracking-card-wide {
+                grid-column: auto;
+            }
+
+            .tracking-canvas-wrap {
+                min-height: 220px;
             }
         }
     </style>
@@ -350,6 +503,62 @@
                     <p class="small muted">Status calculado por atividade recente dos administradores no painel.</p>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <section class="tracking-admin-wrap">
+        <header class="tracking-admin-head">
+            <h2>Tracking comportamental</h2>
+            <p>Leitura em tempo real do fluxo de navegacao: entradas, saidas, paginas com mais interesse e pontos de abandono.</p>
+        </header>
+
+        <div class="tracking-summary-grid">
+            <article class="tracking-summary-card">
+                <strong id="livechat_tracking_active_now">0</strong>
+                <span>Ativos agora</span>
+            </article>
+            <article class="tracking-summary-card">
+                <strong id="livechat_tracking_views_24h">0</strong>
+                <span>Pageviews 24h</span>
+            </article>
+            <article class="tracking-summary-card">
+                <strong id="livechat_tracking_avg_duration">00:00</strong>
+                <span>Tempo medio 24h</span>
+            </article>
+            <article class="tracking-summary-card">
+                <strong id="livechat_tracking_exits_24h">0</strong>
+                <span>Saidas 24h</span>
+            </article>
+        </div>
+
+        <div class="tracking-charts-grid">
+            <article class="tracking-card tracking-card-wide">
+                <h3>Entradas e saidas por minuto (ultima hora)</h3>
+                <div class="tracking-canvas-wrap">
+                    <canvas id="livechat_tracking_timeline_chart" aria-label="Grafico de entradas e saidas"></canvas>
+                </div>
+            </article>
+
+            <article class="tracking-card">
+                <h3>Paginas mais vistas (24h)</h3>
+                <div class="tracking-canvas-wrap">
+                    <canvas id="livechat_tracking_top_paths_chart" aria-label="Grafico de paginas mais vistas"></canvas>
+                </div>
+            </article>
+
+            <article class="tracking-card">
+                <h3>Tipos de saida (24h)</h3>
+                <div class="tracking-canvas-wrap">
+                    <canvas id="livechat_tracking_exit_types_chart" aria-label="Grafico de tipos de saida"></canvas>
+                </div>
+            </article>
+
+            <article class="tracking-card tracking-card-wide">
+                <h3>Paginas ativas agora</h3>
+                <ul id="livechat_tracking_active_paths" class="tracking-active-list">
+                    <li><span class="path">Sem dados ainda</span><span class="count">0</span></li>
+                </ul>
+            </article>
         </div>
     </section>
 
@@ -401,6 +610,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script>
     (function () {
         const root = document.querySelector('[data-livechat-admin]');
@@ -429,12 +639,44 @@
         const visitorsCountBadge = document.getElementById('livechat_visitor_count');
         const consultantsInlineBadge = document.getElementById('livechat_online_count');
 
+        const trackingActiveNow = document.getElementById('livechat_tracking_active_now');
+        const trackingViews24h = document.getElementById('livechat_tracking_views_24h');
+        const trackingAvgDuration = document.getElementById('livechat_tracking_avg_duration');
+        const trackingExits24h = document.getElementById('livechat_tracking_exits_24h');
+        const trackingTimelineCanvas = document.getElementById('livechat_tracking_timeline_chart');
+        const trackingTopPathsCanvas = document.getElementById('livechat_tracking_top_paths_chart');
+        const trackingExitTypesCanvas = document.getElementById('livechat_tracking_exit_types_chart');
+        const trackingActivePathsList = document.getElementById('livechat_tracking_active_paths');
+
+        const normalizeTracking = (payload) => {
+            const summary = payload && typeof payload.summary === 'object' && payload.summary !== null ? payload.summary : {};
+            const timeline = payload && typeof payload.timeline === 'object' && payload.timeline !== null ? payload.timeline : {};
+
+            return {
+                summary,
+                timeline: {
+                    labels: Array.isArray(timeline.labels) ? timeline.labels : [],
+                    entries: Array.isArray(timeline.entries) ? timeline.entries : [],
+                    exits: Array.isArray(timeline.exits) ? timeline.exits : [],
+                },
+                top_paths: Array.isArray(payload?.top_paths) ? payload.top_paths : [],
+                active_paths: Array.isArray(payload?.active_paths) ? payload.active_paths : [],
+                exit_types: Array.isArray(payload?.exit_types) ? payload.exit_types : [],
+            };
+        };
+
         const state = {
             visitors: Array.isArray(bootstrap.visitors) ? bootstrap.visitors : [],
             sessions: Array.isArray(bootstrap.sessions) ? bootstrap.sessions : [],
+            tracking: normalizeTracking(bootstrap.tracking),
             selectedSessionId: null,
             messages: [],
             loadingSession: false,
+            charts: {
+                timeline: null,
+                topPaths: null,
+                exitTypes: null,
+            },
         };
 
         const request = async (url, options = {}) => {
@@ -496,6 +738,246 @@
             };
 
             return map[exitType] || exitType || 'navegacao';
+        };
+
+        const numberFormatter = new Intl.NumberFormat('pt-BR');
+        const formatNumber = (value) => numberFormatter.format(Math.max(0, Number(value) || 0));
+
+        const shortPath = (value, max = 42) => {
+            const path = String(value || '/');
+            if (path.length <= max) return path;
+            return `${path.slice(0, max - 1)}...`;
+        };
+
+        const normalizeSeries = (source, size) => {
+            return Array.from({ length: size }, (_, index) => Math.max(0, Number(source[index] ?? 0) || 0));
+        };
+
+        const canRenderCharts = () => typeof window.Chart !== 'undefined';
+
+        const renderTrackingSummary = (tracking) => {
+            const summary = tracking?.summary || {};
+            const activeNow = Number(summary.active_visitors_now || 0);
+            const views24h = Number(summary.page_views_24h || 0);
+            const avgDuration = Number(summary.avg_duration_seconds_24h || 0);
+            const exits24h = Number(summary.exits_24h || 0);
+
+            if (trackingActiveNow) trackingActiveNow.textContent = formatNumber(activeNow);
+            if (trackingViews24h) trackingViews24h.textContent = formatNumber(views24h);
+            if (trackingAvgDuration) trackingAvgDuration.textContent = formatDuration(avgDuration);
+            if (trackingExits24h) trackingExits24h.textContent = formatNumber(exits24h);
+        };
+
+        const renderActivePaths = (tracking) => {
+            if (!trackingActivePathsList) return;
+            trackingActivePathsList.innerHTML = '';
+
+            const rows = Array.isArray(tracking?.active_paths) ? tracking.active_paths.slice(0, 10) : [];
+            if (!rows.length) {
+                const empty = document.createElement('li');
+                const path = document.createElement('span');
+                path.className = 'path';
+                path.textContent = 'Sem dados ainda';
+                const count = document.createElement('span');
+                count.className = 'count';
+                count.textContent = '0';
+                empty.appendChild(path);
+                empty.appendChild(count);
+                trackingActivePathsList.appendChild(empty);
+                return;
+            }
+
+            rows.forEach((row) => {
+                const item = document.createElement('li');
+                const path = document.createElement('span');
+                path.className = 'path';
+                path.textContent = row.path || '/';
+                path.title = row.path || '/';
+
+                const count = document.createElement('span');
+                count.className = 'count';
+                count.textContent = `${formatNumber(row.active || 0)} ativo(s)`;
+
+                item.appendChild(path);
+                item.appendChild(count);
+                trackingActivePathsList.appendChild(item);
+            });
+        };
+
+        const upsertTimelineChart = (tracking) => {
+            if (!trackingTimelineCanvas || !canRenderCharts()) return;
+
+            const labels = Array.isArray(tracking?.timeline?.labels) ? tracking.timeline.labels : [];
+            const entries = normalizeSeries(tracking?.timeline?.entries || [], labels.length);
+            const exits = normalizeSeries(tracking?.timeline?.exits || [], labels.length);
+            const data = {
+                labels,
+                datasets: [
+                    {
+                        label: 'Entradas',
+                        data: entries,
+                        borderColor: '#178160',
+                        backgroundColor: 'rgba(23,129,96,.22)',
+                        pointRadius: 0,
+                        tension: .32,
+                        fill: true,
+                    },
+                    {
+                        label: 'Saidas',
+                        data: exits,
+                        borderColor: '#b33a2e',
+                        backgroundColor: 'rgba(179,58,46,.16)',
+                        pointRadius: 0,
+                        tension: .32,
+                        fill: true,
+                    },
+                ],
+            };
+
+            if (!state.charts.timeline) {
+                state.charts.timeline = new window.Chart(trackingTimelineCanvas, {
+                    type: 'line',
+                    data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    boxWidth: 14,
+                                    color: '#4f463d',
+                                },
+                            },
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#70665b', maxTicksLimit: 12 },
+                                grid: { color: 'rgba(22,20,19,.07)' },
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0, color: '#70665b' },
+                                grid: { color: 'rgba(22,20,19,.07)' },
+                            },
+                        },
+                    },
+                });
+                return;
+            }
+
+            state.charts.timeline.data = data;
+            state.charts.timeline.update('none');
+        };
+
+        const upsertTopPathsChart = (tracking) => {
+            if (!trackingTopPathsCanvas || !canRenderCharts()) return;
+
+            const topPaths = Array.isArray(tracking?.top_paths) ? tracking.top_paths.slice(0, 8) : [];
+            const labels = topPaths.map((row) => shortPath(row.path || '/'));
+            const dataPoints = topPaths.map((row) => Math.max(0, Number(row.views || 0)));
+            const data = {
+                labels,
+                datasets: [
+                    {
+                        label: 'Visualizacoes',
+                        data: dataPoints,
+                        borderRadius: 8,
+                        backgroundColor: '#3c63f3',
+                    },
+                ],
+            };
+
+            if (!state.charts.topPaths) {
+                state.charts.topPaths = new window.Chart(trackingTopPathsCanvas, {
+                    type: 'bar',
+                    data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: { display: false },
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { precision: 0, color: '#70665b' },
+                                grid: { color: 'rgba(22,20,19,.07)' },
+                            },
+                            y: {
+                                ticks: { color: '#70665b' },
+                                grid: { display: false },
+                            },
+                        },
+                    },
+                });
+                return;
+            }
+
+            state.charts.topPaths.data = data;
+            state.charts.topPaths.update('none');
+        };
+
+        const upsertExitTypesChart = (tracking) => {
+            if (!trackingExitTypesCanvas || !canRenderCharts()) return;
+
+            const rows = Array.isArray(tracking?.exit_types) ? tracking.exit_types : [];
+            const labels = rows.map((row) => exitTypeLabel(row.type));
+            const dataPoints = rows.map((row) => Math.max(0, Number(row.count || 0)));
+            const data = {
+                labels,
+                datasets: [
+                    {
+                        data: dataPoints,
+                        backgroundColor: [
+                            '#3c63f3',
+                            '#178160',
+                            '#f18a1a',
+                            '#b33a2e',
+                            '#7a4df2',
+                            '#1e9bb2',
+                        ],
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,.9)',
+                    },
+                ],
+            };
+
+            if (!state.charts.exitTypes) {
+                state.charts.exitTypes = new window.Chart(trackingExitTypesCanvas, {
+                    type: 'doughnut',
+                    data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 12,
+                                    color: '#4f463d',
+                                },
+                            },
+                        },
+                    },
+                });
+                return;
+            }
+
+            state.charts.exitTypes.data = data;
+            state.charts.exitTypes.update('none');
+        };
+
+        const renderTracking = (payload) => {
+            const tracking = normalizeTracking(payload);
+            state.tracking = tracking;
+
+            renderTrackingSummary(tracking);
+            renderActivePaths(tracking);
+            upsertTimelineChart(tracking);
+            upsertTopPathsChart(tracking);
+            upsertExitTypesChart(tracking);
         };
 
         const createMetaPill = (label) => {
@@ -791,6 +1273,7 @@
 
                 state.visitors = Array.isArray(payload.active_visitors) ? payload.active_visitors : [];
                 state.sessions = Array.isArray(payload.sessions) ? payload.sessions : [];
+                renderTracking(payload.tracking);
 
                 renderVisitors();
                 renderSessions();
@@ -860,6 +1343,7 @@
         renderSessions();
         renderConversation();
         renderStats(bootstrap);
+        renderTracking(state.tracking);
 
         if (state.sessions.length) {
             openSession(state.sessions[0].id);

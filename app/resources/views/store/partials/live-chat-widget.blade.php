@@ -19,17 +19,6 @@
     data-open="0"
 >
     @unless($trackOnly)
-        <section class="livechat-invite" data-livechat-invite hidden>
-            <button class="livechat-invite-close" type="button" data-livechat-invite-dismiss aria-label="Fechar convite">
-                &times;
-            </button>
-            <strong>Oi, podemos ajudar?</strong>
-            <p>Nosso consultor esta online agora para orientar o melhor produto.</p>
-            <button class="btn btn-primary btn-sm" type="button" data-livechat-invite-open>
-                Falar com consultor agora
-            </button>
-        </section>
-
         <aside class="livechat-panel" data-livechat-panel aria-label="Atendimento online">
             <header class="livechat-head">
                 <div class="livechat-head-copy">
@@ -128,18 +117,33 @@
 @once
     <style>
         .livechat-floating {
+            --livechat-right: 24px;
+            --livechat-bottom: 28px;
             position: fixed;
-            right: clamp(10px, 2.2vw, 24px);
-            bottom: clamp(14px, 2.5vw, 28px);
+            inset: auto var(--livechat-right) var(--livechat-bottom) auto;
+            top: auto;
+            left: auto;
+            right: var(--livechat-right);
+            bottom: var(--livechat-bottom);
             z-index: 110;
             display: grid;
             gap: 10px;
             justify-items: end;
+            align-content: end;
+            height: auto;
             width: min(390px, calc(100vw - 20px));
+            pointer-events: none;
         }
 
         .livechat-floating.is-track-only {
             display: none;
+        }
+
+        @supports (right: clamp(10px, 2.2vw, 24px)) {
+            .livechat-floating {
+                --livechat-right: clamp(10px, 2.2vw, 24px);
+                --livechat-bottom: clamp(14px, 2.5vw, 28px);
+            }
         }
 
         .livechat-launcher {
@@ -160,6 +164,7 @@
                 inset 0 1px 0 rgba(255,255,255,.9);
             transition: transform .18s ease, box-shadow .18s ease;
             text-align: left;
+            pointer-events: auto;
         }
 
         .livechat-launcher:hover {
@@ -229,6 +234,9 @@
         }
 
         .livechat-panel {
+            position: absolute;
+            right: 0;
+            bottom: calc(100% + 10px);
             width: min(390px, calc(100vw - 20px));
             max-height: min(78vh, 640px);
             border-radius: 22px;
@@ -505,9 +513,9 @@
 
         @media (max-width: 760px) {
             .livechat-floating {
-                right: 8px;
+                --livechat-right: 8px;
+                --livechat-bottom: calc(env(safe-area-inset-bottom, 0px) + 82px);
                 width: calc(100vw - 16px);
-                bottom: calc(env(safe-area-inset-bottom, 0px) + 82px);
             }
 
             .livechat-panel,

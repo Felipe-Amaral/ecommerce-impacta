@@ -27,6 +27,7 @@ class LiveChatMonitorController extends Controller
         return view('admin.livechat.index', [
             'initialVisitors' => $visitors,
             'initialSessions' => $sessions,
+            'initialTracking' => $this->trackingPayload(),
             'consultantsOnline' => $consultantsOnline,
             'stats' => [
                 'active_visitors' => count($visitors),
@@ -50,6 +51,7 @@ class LiveChatMonitorController extends Controller
             'consultants_online' => $this->consultantsOnlineCount(),
             'active_visitors' => $visitors,
             'sessions' => $sessions,
+            'tracking' => $this->trackingPayload(),
             'stats' => [
                 'active_visitors' => count($visitors),
                 'open_sessions' => count($sessions),
@@ -414,6 +416,141 @@ class LiveChatMonitorController extends Controller
                 'exit_type' => 'inactivity',
             ])->save();
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function trackingPayload(): array
+    {
+        $now = now();
+        $timelineStart = $now->copy()->subMinutes(59)->startOfMinute();
+        $timelineEnd = $now->copy()->startOfMinute();
+        $rangeStart24h = $now->copy()->subHours(24);
+
+        $labels = [];
+        $minuteKeys = [];
+        $cursor = $timelineStart->copy();
+
+        while ($cursor->lte($timelineEnd)) {
+            $minuteKey = $cursor->format('Y-m-d H:i:00');
+            $minuteKeys[] = $minuteKey;
+            $labels[] = $cursor->format('H:i');
+            $cursor->addMinute();
+        }
+
+        $entriesMap = array_fill_keys($minuteKeys, 0);
+        $exitsMap = array_fill_keys($minuteKeys, 0);
+
+        $enteredRows = LiveVisitorPageView::query()
+            ->whereBetween('entered_at', [$timelineStart, $timelineEnd->copy()->endOfMinute()])
+            ->selectRaw("DATE_FORMAT(entered_at, '%Y-%m-%d %H:%i:00') as minute_key, COUNT(*) as total")
+            ->groupBy('minute_key')
+            ->get();
+
+        foreach ($enteredRows as $row) {
+            $minuteKey = (string) $row->minute_key;
+            if (array_key_exists($minuteKey, $entriesMap)) {
+                $entriesMap[$minuteKey] = (int) $row->total;
+            }
+        }
+
+        $exitRows = LiveVisitorPageView::query()
+            ->whereNotNull('left_at')
+            ->whereBetween('left_at', [$timelineStart, $timelineEnd->copy()->endOfMinute()])
+            ->selectRaw("DATE_FORMAT(left_at, '%Y-%m-%d %H:%i:00') as minute_key, COUNT(*) as total")
+            ->groupBy('minute_key')
+            ->get();
+
+        foreach ($exitRows as $row) {
+            $minuteKey = (string) $row->minute_key;
+            if (array_key_exists($minuteKey, $exitsMap)) {
+                $exitsMap[$minuteKey] = (int) $row->total;
+            }
+        }
+
+        $topPaths = LiveVisitorPageView::query()
+            ->where('entered_at', '>=', $rangeStart24h)
+            ->selectRaw("COALESCE(NULLIF(path, ''), '/') as normalized_path, COUNT(*) as views, AVG(COALESCE(duration_seconds, 0)) as avg_duration_seconds, SUM(COALESCE(duration_seconds, 0)) as total_duration_seconds")
+            ->groupByRaw("COALESCE(NULLIF(path, ''), '/')")
+            ->orderByDesc('views')
+            ->limit(10)
+            ->get()
+            ->map(fn (LiveVisitorPageView $view): array => [
+                'path' => (string) ($view->normalized_path ?? '/'),
+                'views' => (int) ($view->views ?? 0),
+                'avg_duration_seconds' => max(0, (int) round((float) ($view->avg_duration_seconds ?? 0))),
+                'total_duration_seconds' => max(0, (int) ($view->total_duration_seconds ?? 0)),
+            ])
+            ->values()
+            ->all();
+
+        $activePaths = LiveVisitor::query()
+            ->active(120)
+            ->with('user:id,is_admin')
+            ->get()
+            ->filter(fn (LiveVisitor $visitor): bool => ! (bool) ($visitor->user?->is_admin))
+            ->groupBy(fn (LiveVisitor $visitor): string => $visitor->current_path ?: '/')
+            ->map(fn (Collection $collection, string $path): array => [
+                'path' => $path,
+                'active' => $collection->count(),
+            ])
+            ->sortByDesc('active')
+            ->take(10)
+            ->values()
+            ->all();
+
+        $exitTypes = LiveVisitorPageView::query()
+            ->whereNotNull('left_at')
+            ->where('left_at', '>=', $rangeStart24h)
+            ->selectRaw("COALESCE(NULLIF(exit_type, ''), 'navigation') as normalized_exit_type, COUNT(*) as total")
+            ->groupByRaw("COALESCE(NULLIF(exit_type, ''), 'navigation')")
+            ->orderByDesc('total')
+            ->get()
+            ->map(fn (LiveVisitorPageView $view): array => [
+                'type' => (string) ($view->normalized_exit_type ?? 'navigation'),
+                'count' => (int) ($view->total ?? 0),
+            ])
+            ->values()
+            ->all();
+
+        $pageViews24h = LiveVisitorPageView::query()
+            ->where('entered_at', '>=', $rangeStart24h)
+            ->count();
+
+        $avgDuration24h = (int) round((float) LiveVisitorPageView::query()
+            ->where('entered_at', '>=', $rangeStart24h)
+            ->whereNotNull('duration_seconds')
+            ->avg('duration_seconds'));
+
+        $exits24h = LiveVisitorPageView::query()
+            ->whereNotNull('left_at')
+            ->where('left_at', '>=', $rangeStart24h)
+            ->count();
+
+        $activeVisitorsNow = LiveVisitor::query()
+            ->active(120)
+            ->with('user:id,is_admin')
+            ->get()
+            ->filter(fn (LiveVisitor $visitor): bool => ! (bool) ($visitor->user?->is_admin))
+            ->count();
+
+        return [
+            'summary' => [
+                'active_visitors_now' => $activeVisitorsNow,
+                'page_views_24h' => (int) $pageViews24h,
+                'avg_duration_seconds_24h' => max(0, $avgDuration24h),
+                'exits_24h' => (int) $exits24h,
+            ],
+            'timeline' => [
+                'labels' => $labels,
+                'entries' => array_values($entriesMap),
+                'exits' => array_values($exitsMap),
+            ],
+            'top_paths' => $topPaths,
+            'active_paths' => $activePaths,
+            'exit_types' => $exitTypes,
+        ];
     }
 
     private function assertAdmin(): void
