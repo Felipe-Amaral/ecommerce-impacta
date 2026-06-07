@@ -5,13 +5,16 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\FulfillmentStatus;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Events\OrderMessageSent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateOrderWorkflowRequest;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Support\UiStatus;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Throwable;
 
 class OrderController extends Controller
 {
@@ -146,6 +149,50 @@ class OrderController extends Controller
             'created_at' => now(),
         ]);
 
+        $message = $order->messages()->create([
+            'user_id' => $request->user()?->id,
+            'sender_role' => 'admin',
+            'body' => $this->workflowChatMessage($data),
+            'metadata' => [
+                'source' => 'order_workflow',
+                'status_from' => $oldOrderStatus,
+                'status_to' => $order->status->value,
+                'payment_status_from' => $oldPaymentStatus,
+                'payment_status_to' => $order->payment_status->value,
+                'fulfillment_status_to' => $order->fulfillment_status->value,
+            ],
+            'read_by_client_at' => null,
+            'read_by_admin_at' => now(),
+        ]);
+
+        try {
+            broadcast(new OrderMessageSent($order, $message->loadMissing('user')))->toOthers();
+        } catch (Throwable $exception) {
+            report($exception);
+        }
+
         return back()->with('success', 'Status do pedido atualizado.');
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function workflowChatMessage(array $data): string
+    {
+        $message = implode("\n", [
+            'Status do pedido atualizado.',
+            '',
+            'Pedido: '.UiStatus::labelValue((string) $data['status']),
+            'Pagamento: '.UiStatus::labelValue((string) $data['payment_status']),
+            'Produção: '.UiStatus::labelValue((string) $data['fulfillment_status']),
+        ]);
+
+        $adminNotes = trim((string) ($data['message'] ?? ''));
+
+        if ($adminNotes !== '') {
+            $message .= "\n\nObservações da equipe: {$adminNotes}";
+        }
+
+        return $message;
     }
 }

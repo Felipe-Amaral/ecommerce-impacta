@@ -27,9 +27,9 @@
     $reverbBroadcast = (string) config('broadcasting.default', 'null') === 'reverb';
     $reverbConfig = (array) config('broadcasting.connections.reverb', []);
     $reverbOptions = (array) ($reverbConfig['options'] ?? []);
-    $reverbHost = (string) ($reverbOptions['host'] ?? env('REVERB_HOST', 'localhost'));
-    $reverbPort = (int) ($reverbOptions['port'] ?? env('REVERB_PORT', 8081));
-    $reverbScheme = (string) ($reverbOptions['scheme'] ?? env('REVERB_SCHEME', 'http'));
+    $reverbHost = (string) env('REVERB_CLIENT_HOST', env('REVERB_HOST', $reverbOptions['host'] ?? 'localhost'));
+    $reverbPort = (int) env('REVERB_CLIENT_PORT', env('REVERB_PORT', $reverbOptions['port'] ?? 8081));
+    $reverbScheme = (string) env('REVERB_CLIENT_SCHEME', env('REVERB_SCHEME', $reverbOptions['scheme'] ?? 'http'));
 @endphp
 
 <section

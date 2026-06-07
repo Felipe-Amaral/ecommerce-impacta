@@ -154,6 +154,12 @@ class PrintShopOperationalFlowTest extends TestCase
         $this->assertSame(ArtworkFileStatus::Approved, $artworkFile->status);
         $this->assertSame('file_approved', $item->production_status);
         $this->assertSame(FulfillmentStatus::Approved, $order->fulfillment_status);
+        $this->assertDatabaseHas('order_messages', [
+            'order_id' => $order->id,
+            'user_id' => $admin->id,
+            'sender_role' => 'admin',
+            'body' => "A revisão técnica da arte do item {$item->product_name} foi atualizada para: Aprovado.\n\nObservações da equipe: Arquivo aprovado para produção.",
+        ]);
 
         $this->patch(route('admin.orders.workflow.update', $order), [
             'status' => OrderStatus::InProduction->value,
@@ -171,5 +177,17 @@ class PrintShopOperationalFlowTest extends TestCase
         $this->assertSame(PaymentStatus::Paid, $payment->status);
         $this->assertNotNull($order->paid_at);
         $this->assertNotNull($payment->paid_at);
+
+        $workflowMessage = $order->messages()
+            ->where('metadata->source', 'order_workflow')
+            ->latest('id')
+            ->firstOrFail();
+
+        $this->assertSame($admin->id, $workflowMessage->user_id);
+        $this->assertSame('admin', $workflowMessage->sender_role);
+        $this->assertSame(
+            "Status do pedido atualizado.\n\nPedido: Em produção\nPagamento: Pago\nProdução: Impressão\n\nObservações da equipe: Cobrança confirmada e produção liberada.",
+            $workflowMessage->body,
+        );
     }
 }

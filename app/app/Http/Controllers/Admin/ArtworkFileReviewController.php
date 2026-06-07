@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\ArtworkFileStatus;
 use App\Enums\FulfillmentStatus;
+use App\Events\OrderMessageSent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ReviewArtworkFileRequest;
 use App\Models\ArtworkFile;
 use Illuminate\Http\RedirectResponse;
+use Throwable;
 
 class ArtworkFileReviewController extends Controller
 {
@@ -68,8 +70,44 @@ class ArtworkFileReviewController extends Controller
                 ],
                 'created_at' => now(),
             ]);
+
+            $message = $order->messages()->create([
+                'user_id' => $request->user()?->id,
+                'sender_role' => 'admin',
+                'body' => $this->artworkReviewChatMessage($artworkFile),
+                'metadata' => [
+                    'source' => 'artwork_review',
+                    'artwork_file_id' => $artworkFile->id,
+                    'artwork_status' => $artworkFile->status->value,
+                    'order_item_id' => $item->id,
+                ],
+                'read_by_client_at' => null,
+                'read_by_admin_at' => now(),
+            ]);
+
+            try {
+                broadcast(new OrderMessageSent($order, $message->loadMissing('user')))->toOthers();
+            } catch (Throwable $exception) {
+                report($exception);
+            }
         }
 
         return back()->with('success', 'Revisão da arte atualizada.');
+    }
+
+    private function artworkReviewChatMessage(ArtworkFile $artworkFile): string
+    {
+        $item = $artworkFile->orderItem;
+        $statusLabel = $artworkFile->status->label();
+        $productName = $item?->product_name ?: 'item do pedido';
+
+        $message = "A revisão técnica da arte do item {$productName} foi atualizada para: {$statusLabel}.";
+        $reviewNotes = trim((string) $artworkFile->review_notes);
+
+        if ($reviewNotes !== '') {
+            $message .= "\n\nObservações da equipe: {$reviewNotes}";
+        }
+
+        return $message;
     }
 }

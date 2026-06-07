@@ -2,6 +2,7 @@
 
 Base inicial de um e-commerce para gráfica com foco em arquitetura de produção:
 
+- Documentação consolidada do projeto: [`docs/DOCUMENTACAO_DO_PROJETO.md`](docs/DOCUMENTACAO_DO_PROJETO.md)
 - Docker Compose (Nginx, PHP-FPM, MySQL, Redis, Mailpit)
 - Laravel (última versão instalada via Composer no setup)
 - Catálogo com categorias, produtos e variantes
@@ -10,6 +11,7 @@ Base inicial de um e-commerce para gráfica com foco em arquitetura de produçã
 - Cobrança integrada (Mercado Pago / fallback manual)
 - Frete por CEP (Melhor Envio / fallback local) + retirada no balcão
 - Upload de arte final por item + checklist técnico + revisão/admin
+- Atendimento online, chat do pedido, blog, portfólio e contatos
 
 ## Stack usada
 
@@ -123,9 +125,22 @@ Se não configurar tokens, o sistema usa fallback local:
 4. Regras comerciais (cupom, tabela B2B, desconto por volume)
 5. Painel financeiro (baixas, conciliação, 2ª via)
 
-## Validação executada nesta entrega
+## Feature adicionada nesta rodada
 
-- `php -l` nos arquivos PHP (via container)
-- `docker compose up -d` com stack saudável
-- `php artisan migrate --seed --force`
-- `php artisan test`
+Foi adicionada uma melhoria operacional pequena e útil para a gráfica: ao revisar uma arte no painel admin, o sistema publica automaticamente um aviso no chat do pedido com o status da revisão e as observações da equipe.
+
+Também foi adicionada a mesma lógica ao bloco **Atualizar status do pedido**: quando o admin muda o workflow, o chat recebe uma mensagem com status do pedido, pagamento, produção e observações da equipe. Isso conecta pré-impressão, produção e cliente dentro do fluxo que já existia.
+
+Arquivos principais:
+
+- `app/app/Http/Controllers/Admin/ArtworkFileReviewController.php`
+- `app/app/Http/Controllers/Admin/OrderController.php`
+- `app/tests/Feature/PrintShopOperationalFlowTest.php`
+- `docs/DOCUMENTACAO_DO_PROJETO.md`
+
+## Validação executada nesta rodada
+
+- `docker compose exec -T app php -l app/Http/Controllers/Admin/ArtworkFileReviewController.php`
+- `docker compose exec -T app php -l tests/Feature/PrintShopOperationalFlowTest.php`
+- `docker compose exec -T app php artisan test --filter=PrintShopOperationalFlowTest`
+- `docker compose exec -T app php artisan test`
